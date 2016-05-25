@@ -1,0 +1,23 @@
+{
+  "name": "@ubiquits/toolchain",
+  "version": "0.0.1",
+  "description": "Toolchain for ubiquits projects, modules & core",
+  "main": "index.js",
+  "scripts": {
+    "test": "gulp test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ubiquits/toolchain.git"
+  },
+  "keywords": [
+    "ubiquits",
+    "toolchain"
+  ],
+  "author": "Zak Henry",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ubiquits/toolchain/issues"
+  },
+  "homepage": "https://github.com/ubiquits/toolchain#readme"
+}
