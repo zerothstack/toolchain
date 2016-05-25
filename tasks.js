@@ -31,13 +31,11 @@ class UbiquitsProject {
 
     this.paths = _.merge({
       source: {
-        api: {
-          tsConfig: this.basePath + '/tsconfig.api.json',
+        server: {
+          tsConfig: this.basePath + '/tsconfig.server.json',
           ts: [
-            './api/**/*.ts',
-            './common/**/*.ts',
-            './_demo/api/**/*.ts',
-            './_demo/common/**/*.ts',
+            './src/server/**/*.ts',
+            './src/common/**/*.ts',
           ],
           definitions: [
             './typings/**/*.d.ts',
@@ -49,7 +47,7 @@ class UbiquitsProject {
       destination: {
         build: './build',
         coverage: './coverage',
-        api: 'build/node',
+        server: 'build/server',
         browser: 'build/browser',
       }
     }, paths);
@@ -62,13 +60,11 @@ class UbiquitsProject {
 
   clean(paths) {
 
-
     return () => this.gulp.src(paths, {read: false, cwd: this.basePath})
       .pipe(rimraf())
   }
 
   tslint(paths) {
-
 
     return () => this.gulp.src(paths, {cwd: this.basePath})
       .pipe(tslint())
@@ -77,10 +73,9 @@ class UbiquitsProject {
 
   compileApi(paths) {
 
-
     return () => {
       const tsProject = typescript.createProject(paths.tsConfig);
-      let tsResult = this.gulp.src(paths.source, {cwd: this.basePath, base: './'})
+      let tsResult = this.gulp.src(paths.source, {cwd: this.basePath, base: './src'})
         .pipe(sourcemaps.init())
         .pipe(typescript(tsProject));
 
@@ -95,7 +90,6 @@ class UbiquitsProject {
   }
 
   instrument(paths) {
-
 
     return () => this.gulp.src(paths, {cwd: this.basePath})
     // Covering files
@@ -112,7 +106,6 @@ class UbiquitsProject {
       require('core-js');
       require('reflect-metadata');
       require('zone.js/dist/zone-node');
-
 
       return gulp.src(paths.source, {cwd: this.basePath})
         .pipe(jasmine({
@@ -134,7 +127,6 @@ class UbiquitsProject {
   remapCoverage(paths) {
 
     return () => {
-
 
       return gulp.src(paths.source, {cwd: this.basePath})
         .pipe(merge('summary.json'))
@@ -160,9 +152,8 @@ class UbiquitsProject {
         script: config.entryPoint,
         'ext': 'js json ts',
         watch: [
-          this.resolvePath('api'),
-          this.resolvePath('_demo'),
-          this.resolvePath('common')
+          this.resolvePath('src/server'),
+          this.resolvePath('src/common'),
         ],
         nodeArgs: [
           // ad-hoc debugging (doesn't allow debugging of bootstrap, but app will run with debugger off)
@@ -172,12 +163,10 @@ class UbiquitsProject {
         ],
         env: {
           'NODE_ENV': 'development',
-          'NODEMON_ENTRYPOINT': this.resolvePath('./build/node/_demo/api/main.js')
+          'NODEMON_ENTRYPOINT': this.resolvePath('./build/server/server/main.js')
         },
-        tasks: config.tasks
-      }).on('restart', function () {
-        console.log('restarted nodemon!')
-      })
+        tasks: config.tasks,
+      }).on('restart', () => console.log('restarted nodemon!'))
     }
 
   }
@@ -213,9 +202,7 @@ class UbiquitsProject {
 
   }
 
-
   registerDefaultTasks() {
-
 
     this.registerTask('clean:build', 'removes the build directory', this.clean(this.paths.destination.build));
 
@@ -223,41 +210,41 @@ class UbiquitsProject {
 
     this.registerTask('clean', 'build & coverage directories', null, ['clean:build', 'clean:coverage']);
 
-    this.registerTask('tslint', 'lint files', this.tslint(this.paths.source.api.ts));
+    this.registerTask('tslint', 'lint files', this.tslint(this.paths.source.server.ts));
 
-    this.registerTask('compile:api', 'compile API files', this.compileApi({
-      source: [].concat(this.paths.source.api.ts, this.paths.source.api.definitions),
-      destination: this.paths.destination.api,
-      tsConfig: this.paths.source.api.tsConfig
+    this.registerTask('compile:server', 'compile API files', this.compileApi({
+      source: [].concat(this.paths.source.server.ts, this.paths.source.server.definitions),
+      destination: this.paths.destination.server,
+      tsConfig: this.paths.source.server.tsConfig
     }), ['clean:build']);
 
-    this.registerTask('instrument:api', 'instrument api files', this.instrument(this.paths.destination.api + '/**/*.js'));
+    this.registerTask('instrument:server', 'instrument server files', this.instrument(this.paths.destination.server + '/**/*.js'));
 
-    this.registerTask('test:api', 'run api tests', (callback) => {
-      runSequence('compile:api', 'instrument:api', 'jasmine:api', callback);
+    this.registerTask('test:server', 'run server tests', (callback) => {
+      runSequence('compile:server', 'instrument:server', 'jasmine:server', callback);
     });
 
     this.registerTask('test', 'run all tests', (callback) => {
-      runSequence('test:api', 'test:browser', 'coverage:remap', callback);
+      runSequence('test:server', 'test:browser', 'coverage:remap', callback);
     }, ['clean']);
 
-    this.registerTask('jasmine:api', 'run api spec files', this.jasmine({
-      source: [this.paths.destination.api + '/**/*.js', '!' + this.paths.destination.api+'**/main.js'],
-      coverage: this.paths.destination.coverage + '/api/js'
+    this.registerTask('jasmine:server', 'run server spec files', this.jasmine({
+      source: [this.paths.destination.server + '/**/*.js', '!' + this.paths.destination.server + '**/main.js'],
+      coverage: this.paths.destination.coverage + '/server/js'
     }));
 
     this.registerTask('coverage:remap', 'remap coverage files to typescript sources', this.remapCoverage({
       source: [
         this.resolvePath('./coverage/browser/js/coverage-final.json'),
-        this.resolvePath('./coverage/api/js/coverage-final.json'),
+        this.resolvePath('./coverage/server/js/coverage-final.json'),
       ],
       coverage: this.paths.destination.coverage
     }));
 
     this.registerTask('watch', 'watch all files with nodemon', this.nodemon({
       entryPoint: __dirname + '/server/localhost.js',
-      tasks: ['compile:api']
-    }), ['compile:api']);
+      tasks: ['compile:server']
+    }), ['compile:server']);
 
     this.registerTask('test:browser', 'test browser', (done) => {
 
@@ -266,14 +253,14 @@ class UbiquitsProject {
         basePath: this.basePath,
         singleRun: true,
       }, done).start();
-    }, ['compile:api']);
+    }, ['compile:server']);
 
     this.registerTask('compile:browser', 'compile browser', this.webpack({
       webpackPath: './browser/webpack.prod.js',
       destination: this.paths.destination.browser
     }));
 
-    this.registerTask('compile', 'compile all files', null, ['compile:browser', 'compile:api']);
+    this.registerTask('compile', 'compile all files', null, ['compile:browser', 'compile:server']);
 
     return this;
   }
@@ -285,14 +272,13 @@ class UbiquitsProject {
 
   logEvents(gulpInst) {
 
-
     gulpInst.on('task_start', (e) => {
       // TODO: batch these
       // so when 5 tasks start at once it only logs one time with all 5
       gutil.log('Starting', '\'' + chalk.cyan(e.task) + '\'...');
     });
 
-    gulpInst.on('task_stop', function (e) {
+    gulpInst.on('task_stop', (e) => {
       var time = prettyTime(e.hrDuration);
       gutil.log(
         'Finished', '\'' + chalk.cyan(e.task) + '\'',
@@ -340,6 +326,5 @@ class UbiquitsProject {
   }
 
 }
-
 
 module.exports = {UbiquitsProject};

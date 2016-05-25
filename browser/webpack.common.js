@@ -4,11 +4,12 @@ var ExtractTextPlugin = require('extract-text-webpack-plugin');
 var helpers = require('./helpers');
 
 module.exports = {
+  // @todo refactor to use paths defined in tasks.js (class UbiquitsProject)
   entry: {
-    'polyfills': './browser/polyfills.ts',
-    'vendor': './browser/vendor.ts',
-    'app': './browser/main.ts',
-    'common': './common/index.ts',
+    'polyfills': './src/browser/polyfills.ts',
+    'vendor': './src/browser/vendor.ts',
+    'app': './src/browser/main.ts',
+    'common': './src/common/index.ts',
   },
 
   resolve: {
@@ -60,9 +61,9 @@ module.exports = {
     new webpack.optimize.CommonsChunkPlugin({
       name: ['app', 'vendor', 'polyfills']
     }),
-
+    // @todo refactor to use paths defined in tasks.js (class UbiquitsProject)
     new HtmlWebpackPlugin({
-      template: 'browser/index.html'
+      template: 'src/browser/index.html'
     })
   ],
 
