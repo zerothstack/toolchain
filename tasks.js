@@ -156,7 +156,6 @@ class UbiquitsProject {
 
     return () => {
 
-
       nodemon({
         script: config.entryPoint,
         'ext': 'js json ts',
@@ -171,7 +170,10 @@ class UbiquitsProject {
           // explicit debugging (app won't start until remote debugger connects)
           // '--debug-brk=5858'
         ],
-        env: {'NODE_ENV': 'development'},
+        env: {
+          'NODE_ENV': 'development',
+          'NODEMON_ENTRYPOINT': this.resolvePath('./build/node/_demo/api/main.js')
+        },
         tasks: config.tasks
       }).on('restart', function () {
         console.log('restarted nodemon!')
@@ -253,21 +255,21 @@ class UbiquitsProject {
     }));
 
     this.registerTask('watch', 'watch all files with nodemon', this.nodemon({
-      entryPoint: this.resolvePath('./localhost.js'),
+      entryPoint: __dirname + '/server/localhost.js',
       tasks: ['compile:api']
     }), ['compile:api']);
 
     this.registerTask('test:browser', 'test browser', (done) => {
 
-
       new KarmaServer({
-        configFile: this.resolvePath('./karma.conf.js'),
-        singleRun: true
+        configFile: __dirname + '/browser/karma.conf.js',
+        basePath: this.basePath,
+        singleRun: true,
       }, done).start();
     }, ['compile:api']);
 
     this.registerTask('compile:browser', 'compile browser', this.webpack({
-      webpackPath: this.resolvePath('./browser/config/webpack.prod.js'),
+      webpackPath: './browser/webpack.prod.js',
       destination: this.paths.destination.browser
     }));
 
@@ -284,7 +286,7 @@ class UbiquitsProject {
   logEvents(gulpInst) {
 
 
-    gulpInst.on('task_start', function (e) {
+    gulpInst.on('task_start', (e) => {
       // TODO: batch these
       // so when 5 tasks start at once it only logs one time with all 5
       gutil.log('Starting', '\'' + chalk.cyan(e.task) + '\'...');
@@ -298,7 +300,7 @@ class UbiquitsProject {
       );
     });
 
-    gulpInst.on('task_err', function (e) {
+    gulpInst.on('task_err', (e) => {
       var msg = this.formatError(e);
       var time = prettyTime(e.hrDuration);
       gutil.log(
@@ -309,7 +311,7 @@ class UbiquitsProject {
       gutil.log(msg);
     });
 
-    gulpInst.on('task_not_found', function (err) {
+    gulpInst.on('task_not_found', (err) => {
       gutil.log(
         chalk.red('Task \'' + err.task + '\' is not in your gulpfile')
       );
