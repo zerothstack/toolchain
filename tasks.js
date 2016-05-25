@@ -242,7 +242,7 @@ class UbiquitsProject {
     }, ['clean']);
 
     this.registerTask('jasmine:api', 'run api spec files', this.jasmine({
-      source: [this.paths.destination.api + '/**/*.js', '!build/api/_demo/api/bootstrap.js'],
+      source: [this.paths.destination.api + '/**/*.js', '!' + this.paths.destination.api+'**/main.js'],
       coverage: this.paths.destination.coverage + '/api/js'
     }));
 
