@@ -17,11 +17,11 @@ require('zone.js/dist/async-test');
  *
  * This is a hack, and should be dealt with when a better solution is devised.
  */
-const appContext = require.context('%working-dir%/src/browser', true, /\.spec\.ts/);
+var appContext = require.context('%working-dir%/src/browser', true, /\.spec\.ts/);
 appContext.keys().forEach(appContext);
 
-const testing = require('@angular/core/testing');
-const browser = require('@angular/platform-browser-dynamic/testing');
+var testing = require('@angular/core/testing');
+var browser = require('@angular/platform-browser-dynamic/testing');
 
 testing.setBaseTestProviders(
   browser.TEST_BROWSER_DYNAMIC_PLATFORM_PROVIDERS,

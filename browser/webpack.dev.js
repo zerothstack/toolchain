@@ -8,7 +8,7 @@ module.exports = webpackMerge(commonConfig, {
   devtool: 'cheap-module-eval-source-map',
 
   output: {
-    path: path.normalize(process.cwd()+ '/build/browser'),
+    path: path.normalize(process.cwd()+ '/lib/browser'),
     publicPath: 'http://localhost:3000/',
     filename: '[name].js',
     chunkFilename: '[id].chunk.js'
@@ -24,4 +24,4 @@ module.exports = webpackMerge(commonConfig, {
   }
 });
 
-console.log('dev path set to ', path.normalize(process.cwd()+ '/build/browser'));
+console.log('dev path set to ', path.normalize(process.cwd()+ '/lib/browser'));

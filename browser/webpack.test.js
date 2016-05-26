@@ -52,7 +52,6 @@ module.exports = {
     ]
   },
 
-
   ts: {
     configFileName: 'tsconfig.browser.json'
   }

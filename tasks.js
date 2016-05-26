@@ -14,13 +14,15 @@ const SpecReporter = require('jasmine-spec-reporter');
 const remapIstanbul = require('remap-istanbul/lib/gulpRemapIstanbul');
 const fs = require('fs');
 const merge = require('gulp-merge-json');
-const nodemon = require('gulp-nodemon');
+const nodemon = require('nodemon');
 const gulpWebpack = require('webpack-stream');
 const gutil = require('gulp-util');
 const KarmaServer = require('karma').Server;
 const prettyTime = require('pretty-hrtime');
 const chalk = require('chalk');
 const runSequence = require('run-sequence');
+const tap = require('gulp-tap');
+const cp = require('child_process')
 
 class UbiquitsProject {
 
@@ -43,12 +45,37 @@ class UbiquitsProject {
             '!./typings/**/core-js/*.d.ts',
           ]
         },
+        browser: {
+          tsConfig: this.basePath + '/tsconfig.browser.json',
+          ts: [
+            './src/browser/**/*.ts',
+            './src/common/**/*.ts',
+          ],
+          definitions: [
+            './typings/**/*.d.ts',
+            '!./typings/index.d.ts',
+          ]
+        },
+        all: {
+          tsConfig: this.basePath + '/tsconfig.json',
+          ts: [
+            './src/browser/**/*.ts',
+            './src/common/**/*.ts',
+            './src/server/**/*.ts',
+          ],
+          definitions: [
+            './typings/**/*.d.ts',
+            '!./typings/index.d.ts',
+            '!./typings/**/core-js/*.d.ts',
+          ]
+        },
       },
       destination: {
-        build: './build',
+        lib: './lib',
+        dist: './dist',
         coverage: './coverage',
-        server: 'build/server',
-        browser: 'build/browser',
+        server: 'lib/server',
+        browser: 'dist/browser',
       }
     }, paths);
 
@@ -71,7 +98,7 @@ class UbiquitsProject {
       .pipe(tslint.report('verbose'))
   }
 
-  compileApi(paths) {
+  compileTs(paths) {
 
     return () => {
       const tsProject = typescript.createProject(paths.tsConfig);
@@ -108,6 +135,9 @@ class UbiquitsProject {
       require('zone.js/dist/zone-node');
 
       return gulp.src(paths.source, {cwd: this.basePath})
+        .pipe(tap((file) => {
+          this.log(chalk.blue('[jasmine]'), chalk.cyan('loading path:', file.path));
+        }))
         .pipe(jasmine({
             reporter: new SpecReporter({
               displayFailuresSummary: false
@@ -138,7 +168,7 @@ class UbiquitsProject {
             'lcovonly': this.resolvePath('./coverage/summary/lcov.info')
           }
         })).on('end', () => {
-          console.log(fs.readFileSync(this.resolvePath('./coverage/summary/text-summary')).toString());
+          this.log(fs.readFileSync(this.resolvePath('./coverage/summary/text-summary')).toString());
         });
     }
 
@@ -148,7 +178,7 @@ class UbiquitsProject {
 
     return () => {
 
-      nodemon({
+      const runner = nodemon({
         script: config.entryPoint,
         'ext': 'js json ts',
         watch: [
@@ -163,10 +193,22 @@ class UbiquitsProject {
         ],
         env: {
           'NODE_ENV': 'development',
-          'NODEMON_ENTRYPOINT': this.resolvePath('./build/server/server/main.js')
+          'NODEMON_ENTRYPOINT': this.resolvePath('./lib/server/server/main.js')
         },
-        tasks: config.tasks,
-      }).on('restart', () => console.log('restarted nodemon!'))
+        verbose: true
+      });
+
+      runner.on('change', () => {
+        this.runSync(config.tasks);
+      });
+
+      // Forward log messages and stdin
+      runner.on('log', (log) => {
+        if (~log.message.indexOf('files triggering change check')) {
+          runner.emit('change');
+        }
+        this.log(chalk.blue('[nodemon]'), chalk.yellow(log.message));
+      });
     }
 
   }
@@ -192,7 +234,7 @@ class UbiquitsProject {
           if (err) {
             throw new gutil.PluginError("webpack", err);
           }
-          gutil.log("[webpack]", stats.toString({
+          this.log("[webpack]", stats.toString({
             chunkModules: false,
             colors: gutil.colors.supportsColor,
           }));
@@ -204,24 +246,24 @@ class UbiquitsProject {
 
   registerDefaultTasks() {
 
-    this.registerTask('clean:build', 'removes the build directory', this.clean(this.paths.destination.build));
-
+    this.registerTask('clean:lib', 'removes the lib directory', this.clean(this.paths.destination.lib));
     this.registerTask('clean:coverage', 'removes the coverage directory', this.clean(this.paths.destination.coverage));
+    this.registerTask('clean:dist', 'removes the dist directory', this.clean(this.paths.destination.dist));
 
-    this.registerTask('clean', 'build & coverage directories', null, ['clean:build', 'clean:coverage']);
+    this.registerTask('clean', 'lib & coverage directories', null, ['clean:lib', 'clean:coverage','clean:dist']);
 
     this.registerTask('tslint', 'lint files', this.tslint(this.paths.source.server.ts));
 
-    this.registerTask('compile:server', 'compile API files', this.compileApi({
+    this.registerTask('build:server', 'compile API files', this.compileTs({
       source: [].concat(this.paths.source.server.ts, this.paths.source.server.definitions),
       destination: this.paths.destination.server,
-      tsConfig: this.paths.source.server.tsConfig
-    }), ['clean:build']);
+      tsConfig: this.paths.source.all.tsConfig
+    }), ['clean:lib']);
 
     this.registerTask('instrument:server', 'instrument server files', this.instrument(this.paths.destination.server + '/**/*.js'));
 
     this.registerTask('test:server', 'run server tests', (callback) => {
-      runSequence('compile:server', 'instrument:server', 'jasmine:server', callback);
+      runSequence('build:server', 'instrument:server', 'jasmine:server', callback);
     });
 
     this.registerTask('test', 'run all tests', (callback) => {
@@ -229,7 +271,7 @@ class UbiquitsProject {
     }, ['clean']);
 
     this.registerTask('jasmine:server', 'run server spec files', this.jasmine({
-      source: [this.paths.destination.server + '/**/*.js', '!' + this.paths.destination.server + '**/main.js'],
+      source: [this.paths.destination.server + '/**/*.js', '!' + this.paths.destination.server + '/**/bootstrap.js'],
       coverage: this.paths.destination.coverage + '/server/js'
     }));
 
@@ -243,8 +285,8 @@ class UbiquitsProject {
 
     this.registerTask('watch', 'watch all files with nodemon', this.nodemon({
       entryPoint: __dirname + '/server/localhost.js',
-      tasks: ['compile:server']
-    }), ['compile:server']);
+      tasks: ['build:server']
+    }), ['build:server']);
 
     this.registerTask('test:browser', 'test browser', (done) => {
 
@@ -253,14 +295,20 @@ class UbiquitsProject {
         basePath: this.basePath,
         singleRun: true,
       }, done).start();
-    }, ['compile:server']);
+    });
 
     this.registerTask('compile:browser', 'compile browser', this.webpack({
       webpackPath: './browser/webpack.prod.js',
       destination: this.paths.destination.browser
-    }));
+    }), ['clean:dist']);
 
-    this.registerTask('compile', 'compile all files', null, ['compile:browser', 'compile:server']);
+    this.registerTask('build', 'build files', this.compileTs({
+      source: [].concat(this.paths.source.all.ts, this.paths.source.all.definitions),
+      destination: this.paths.destination.lib,
+      tsConfig: this.paths.source.all.tsConfig
+    }), ['clean:lib']);
+
+    this.registerTask('compile', 'compile all files', null, ['compile:browser', 'build:server']);
 
     return this;
   }
@@ -270,17 +318,20 @@ class UbiquitsProject {
     this.gulp.start.apply(this.gulp, args);
   }
 
+  runSync(tasks) {
+    this.log(chalk.blue(`Running tasks synchronously: [${task.join(', ')}]`));
+    cp.spawnSync('u', tasks, { stdio: [0, 1, 2] });
+  }
+
   logEvents(gulpInst) {
 
     gulpInst.on('task_start', (e) => {
-      // TODO: batch these
-      // so when 5 tasks start at once it only logs one time with all 5
-      gutil.log('Starting', '\'' + chalk.cyan(e.task) + '\'...');
+      this.log('Starting', '\'' + chalk.cyan(e.task) + '\'...');
     });
 
     gulpInst.on('task_stop', (e) => {
       var time = prettyTime(e.hrDuration);
-      gutil.log(
+      this.log(
         'Finished', '\'' + chalk.cyan(e.task) + '\'',
         'after', chalk.magenta(time)
       );
@@ -289,21 +340,25 @@ class UbiquitsProject {
     gulpInst.on('task_err', (e) => {
       var msg = this.formatError(e);
       var time = prettyTime(e.hrDuration);
-      gutil.log(
+      this.log(
         '\'' + chalk.cyan(e.task) + '\'',
         chalk.red('errored after'),
         chalk.magenta(time)
       );
-      gutil.log(msg);
+      this.log(msg);
     });
 
     gulpInst.on('task_not_found', (err) => {
-      gutil.log(
-        chalk.red('Task \'' + err.task + '\' is not in your gulpfile')
+      this.log(
+        chalk.red('Task \'' + err.task + '\' is not configured in your ubiquits project')
       );
-      gutil.log('Please check the documentation for proper gulpfile formatting');
+      this.log('Please check the documentation for proper ubiquits.js project config');
       process.exit(1);
     });
+  }
+
+  log() {
+    gutil.log.apply(this, arguments);
   }
 
   formatError(e) {

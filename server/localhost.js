@@ -1,3 +1,5 @@
+require('reflect-metadata');
+
 const WebpackPlugin = require('hapi-webpack-plugin');
 const Webpack = require('webpack');
 
