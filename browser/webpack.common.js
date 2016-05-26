@@ -8,7 +8,7 @@ module.exports = {
   entry: {
     'polyfills': './src/browser/polyfills.ts',
     'vendor': './src/browser/vendor.ts',
-    'app': './src/browser/main.ts',
+    'app': ['./src/browser/main.ts'],
     'common': './src/common/index.ts',
   },
 
@@ -46,12 +46,12 @@ module.exports = {
       },
       {
         test: /\.css$/,
-        exclude: helpers.root('app'),
+        exclude: helpers.root('src', 'browser', 'app'),
         loader: ExtractTextPlugin.extract('style', 'css?sourceMap')
       },
       {
         test: /\.css$/,
-        include: helpers.root('app'),
+        include: helpers.root('src', 'browser', 'app'),
         loader: 'raw'
       }
     ]
@@ -59,7 +59,7 @@ module.exports = {
 
   plugins: [
     new webpack.optimize.CommonsChunkPlugin({
-      name: ['app', 'vendor', 'polyfills']
+      name: ['app', 'common', 'vendor', 'polyfills']
     }),
     // @todo refactor to use paths defined in tasks.js (class UbiquitsProject)
     new HtmlWebpackPlugin({

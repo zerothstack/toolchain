@@ -22,7 +22,7 @@ const prettyTime = require('pretty-hrtime');
 const chalk = require('chalk');
 const runSequence = require('run-sequence');
 const tap = require('gulp-tap');
-const cp = require('child_process')
+const cp = require('child_process');
 
 class UbiquitsProject {
 
@@ -319,7 +319,7 @@ class UbiquitsProject {
   }
 
   runSync(tasks) {
-    this.log(chalk.blue(`Running tasks synchronously: [${task.join(', ')}]`));
+    this.log(chalk.blue(`Running tasks synchronously: [${tasks.join(', ')}]`));
     cp.spawnSync('u', tasks, { stdio: [0, 1, 2] });
   }
 
