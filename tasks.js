@@ -23,6 +23,7 @@ const chalk = require('chalk');
 const runSequence = require('run-sequence');
 const tap = require('gulp-tap');
 const cp = require('child_process');
+const coveralls = require('coveralls');
 
 class UbiquitsProject {
 
@@ -115,6 +116,33 @@ class UbiquitsProject {
           .pipe(this.gulp.dest(paths.destination))
       ]);
     }
+  }
+
+  coveralls() {
+
+    return (done) => {
+
+      let input;
+      try {
+        input = fs.readFileSync(path.resolve(this.basePath, this.paths.destination.coverage, 'summary/lcov.info'), 'utf8');
+      } catch (e){
+        if (e.code == 'ENOENT'){
+          this.log(chalk.red(`Could not find summary coverage data at ${e.path}. Have you run "u test"?`));
+          return done();
+        }
+        throw e;
+      }
+
+      coveralls.handleInput(input, function(err) {
+        if (err) {
+          done();
+          throw err;
+        }
+        done();
+      });
+
+    };
+
   }
 
   instrument(paths) {
@@ -310,6 +338,8 @@ class UbiquitsProject {
     }), ['clean:lib']);
 
     this.registerTask('compile', 'compile all files', null, ['compile:browser', 'build:server']);
+
+    this.registerTask('coveralls', 'send code coverage data to coveralsl', this.coveralls());
 
     return this;
   }
