@@ -33,6 +33,7 @@ class UbiquitsProject {
 
     this.paths = _.merge({
       source: {
+        base: './src',
         server: {
           tsConfig: this.basePath + '/tsconfig.server.json',
           ts: [
@@ -102,7 +103,7 @@ class UbiquitsProject {
 
     return () => {
       const tsProject = typescript.createProject(paths.tsConfig);
-      let tsResult = this.gulp.src(paths.source, {cwd: this.basePath, base: './src'})
+      let tsResult = this.gulp.src(paths.source, {cwd: this.basePath, base: this.paths.source.base})
         .pipe(sourcemaps.init())
         .pipe(typescript(tsProject));
 
@@ -110,7 +111,7 @@ class UbiquitsProject {
         tsResult.dts
           .pipe(this.gulp.dest(paths.destination)),
         tsResult.js
-          .pipe(sourcemaps.write('.', {sourceRoot: this.basePath}))
+          .pipe(sourcemaps.write('.', {sourceRoot: path.resolve(this.basePath, this.paths.source.base)}))
           .pipe(this.gulp.dest(paths.destination))
       ]);
     }
@@ -250,7 +251,7 @@ class UbiquitsProject {
     this.registerTask('clean:coverage', 'removes the coverage directory', this.clean(this.paths.destination.coverage));
     this.registerTask('clean:dist', 'removes the dist directory', this.clean(this.paths.destination.dist));
 
-    this.registerTask('clean', 'lib & coverage directories', null, ['clean:lib', 'clean:coverage','clean:dist']);
+    this.registerTask('clean', 'lib & coverage directories', null, ['clean:lib', 'clean:coverage', 'clean:dist']);
 
     this.registerTask('tslint', 'lint files', this.tslint(this.paths.source.server.ts));
 
@@ -320,7 +321,7 @@ class UbiquitsProject {
 
   runSync(tasks) {
     this.log(chalk.blue(`Running tasks synchronously: [${tasks.join(', ')}]`));
-    cp.spawnSync('u', tasks, { stdio: [0, 1, 2] });
+    cp.spawnSync('u', tasks, {stdio: [0, 1, 2]});
   }
 
   logEvents(gulpInst) {
