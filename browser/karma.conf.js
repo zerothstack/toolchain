@@ -31,6 +31,12 @@ module.exports = (config) => {
     colors: true,
     logLevel: config.LOG_INFO,
     autoWatch: false,
+    customLaunchers: {
+      chrome_travis_ci: {
+        base: 'Chrome',
+        flags: ['--no-sandbox']
+      }
+    },
     browsers: [
       // 'PhantomJS'
       'Chrome'
@@ -45,6 +51,10 @@ module.exports = (config) => {
       ]
     }
   };
+
+  if (process.env.TRAVIS) {
+    _config.browsers.splice(_config.browsers.indexOf('Chrome'), 1, 'chrome_travis_ci');
+  }
 
   config.set(_config);
 };
