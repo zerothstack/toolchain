@@ -1,4 +1,5 @@
 require('reflect-metadata');
+require('source-map-support').install();
 
 const WebpackPlugin = require('hapi-webpack-plugin');
 const path = require('path');
