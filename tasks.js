@@ -24,6 +24,7 @@ const runSequence = require('run-sequence');
 const tap = require('gulp-tap');
 const cp = require('child_process');
 const coveralls = require('coveralls');
+const metalsmithTask = require('./docs/metalsmith');
 
 class UbiquitsProject {
 
@@ -273,6 +274,23 @@ class UbiquitsProject {
 
   }
 
+  metalsmith(task) {
+
+    return (done) => {
+      metalsmithTask.run(metalsmithTask.config(task, this.basePath), this.basePath + '/docs',  this.basePath + '/dist-docs', () => {
+
+        this.log('copying assets');
+
+        this.gulp.src('docs/assets/**/*', {cwd: __dirname})
+          .pipe(this.gulp.dest(this.basePath + '/dist-docs/assets'))
+          .on('end', () => {
+            done();
+          });
+      });
+    }
+
+  }
+
   registerDefaultTasks() {
 
     this.registerTask('clean:lib', 'removes the lib directory', this.clean(this.paths.destination.lib));
@@ -339,7 +357,10 @@ class UbiquitsProject {
 
     this.registerTask('compile', 'compile all files', null, ['compile:browser', 'build:server']);
 
-    this.registerTask('coveralls', 'send code coverage data to coveralsl', this.coveralls());
+    this.registerTask('coveralls', 'send code coverage data to coveralls', this.coveralls());
+
+    this.registerTask('doc:watch', 'run documentation watcher', this.metalsmith('watch'));
+    this.registerTask('doc:build', 'build documentation', this.metalsmith('build'));
 
     return this;
   }
