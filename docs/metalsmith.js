@@ -20,9 +20,9 @@ function run(metalsmith, source, destination, callback) {
     });
 }
 
-function config(task, dir) {
+function config(task, pathConfig) {
 
-  let metalsmith = Metalsmith(dir)
+  let metalsmith = Metalsmith(pathConfig.base)
     .metadata({
       title: "Ubiquits",
       description: "Documentation for the Ubiquits framework",
@@ -54,8 +54,10 @@ function config(task, dir) {
     .use(permalinks())
     .use(layouts({
       engine: 'handlebars',
-      directory: __dirname + '/templates',
-      partials: __dirname + '/templates/partials'
+      directory: pathConfig.templates,
+      directoryFallback: __dirname + '/templates',
+      partials: pathConfig.partials,
+      partialsFallback: __dirname + '/templates/partials'
     }))
     .use(copy({
       pattern: './static/*',

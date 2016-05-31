@@ -1,36 +1,37 @@
 'use strict';
 
-const path = require('path');
-const _ = require('lodash');
-const gulp = require('gulp-help')(require('gulp'));
-const rimraf = require('gulp-rimraf');
-const tslint = require('gulp-tslint');
-const istanbul = require('gulp-istanbul');
-const sourcemaps = require('gulp-sourcemaps');
-const typescript = require('gulp-typescript');
-const merge2 = require('merge2');
-const jasmine = require('gulp-jasmine');
-const SpecReporter = require('jasmine-spec-reporter');
-const remapIstanbul = require('remap-istanbul/lib/gulpRemapIstanbul');
-const fs = require('fs');
-const merge = require('gulp-merge-json');
-const nodemon = require('nodemon');
-const gulpWebpack = require('webpack-stream');
-const gutil = require('gulp-util');
-const KarmaServer = require('karma').Server;
-const prettyTime = require('pretty-hrtime');
-const chalk = require('chalk');
-const runSequence = require('run-sequence');
-const tap = require('gulp-tap');
-const cp = require('child_process');
-const coveralls = require('coveralls');
+const path           = require('path');
+const _              = require('lodash');
+const gulp           = require('gulp-help')(require('gulp'));
+const rimraf         = require('gulp-rimraf');
+const tslint         = require('gulp-tslint');
+const istanbul       = require('gulp-istanbul');
+const sourcemaps     = require('gulp-sourcemaps');
+const typescript     = require('gulp-typescript');
+const merge2         = require('merge2');
+const jasmine        = require('gulp-jasmine');
+const SpecReporter   = require('jasmine-spec-reporter');
+const remapIstanbul  = require('remap-istanbul/lib/gulpRemapIstanbul');
+const fs             = require('fs');
+const merge          = require('gulp-merge-json');
+const nodemon        = require('nodemon');
+const gulpWebpack    = require('webpack-stream');
+const gutil          = require('gulp-util');
+const KarmaServer    = require('karma').Server;
+const prettyTime     = require('pretty-hrtime');
+const chalk          = require('chalk');
+const runSequence    = require('run-sequence');
+const tap            = require('gulp-tap');
+const cp             = require('child_process');
+const coveralls      = require('coveralls');
 const metalsmithTask = require('./docs/metalsmith');
+const typedoc        = require("gulp-typedoc");
 
 class UbiquitsProject {
 
   constructor(basePath, paths) {
 
-    this.gulp = gulp;
+    this.gulp     = gulp;
     this.basePath = basePath;
 
     this.paths = _.merge({
@@ -72,6 +73,11 @@ class UbiquitsProject {
             '!./typings/**/core-js/*.d.ts',
           ]
         },
+        docs: {
+          base: './docs',
+          templates: 'templates',
+          partials: 'templates/partials',
+        }
       },
       destination: {
         lib: './lib',
@@ -79,6 +85,7 @@ class UbiquitsProject {
         coverage: './coverage',
         server: 'lib/server',
         browser: 'dist/browser',
+        docs: './dist-docs'
       }
     }, paths);
 
@@ -105,7 +112,10 @@ class UbiquitsProject {
 
     return () => {
       const tsProject = typescript.createProject(paths.tsConfig);
-      let tsResult = this.gulp.src(paths.source, {cwd: this.basePath, base: this.paths.source.base})
+      let tsResult    = this.gulp.src(paths.source, {
+        cwd: this.basePath,
+        base: this.paths.source.base
+      })
         .pipe(sourcemaps.init())
         .pipe(typescript(tsProject));
 
@@ -126,15 +136,15 @@ class UbiquitsProject {
       let input;
       try {
         input = fs.readFileSync(path.resolve(this.basePath, this.paths.destination.coverage, 'summary/lcov.info'), 'utf8');
-      } catch (e){
-        if (e.code == 'ENOENT'){
+      } catch (e) {
+        if (e.code == 'ENOENT') {
           this.log(chalk.red(`Could not find summary coverage data at ${e.path}. Have you run "u test"?`));
           return done();
         }
         throw e;
       }
 
-      coveralls.handleInput(input, function(err) {
+      coveralls.handleInput(input, function (err) {
         if (err) {
           done();
           throw err;
@@ -277,16 +287,49 @@ class UbiquitsProject {
   metalsmith(task) {
 
     return (done) => {
-      metalsmithTask.run(metalsmithTask.config(task, this.basePath), this.basePath + '/docs',  this.basePath + '/dist-docs', () => {
+      metalsmithTask.run(metalsmithTask.config(task, this.paths.source.docs), path.resolve(this.basePath, this.paths.source.docs.base), path.resolve(this.basePath, this.paths.destination.docs), () => {
 
         this.log('copying assets');
 
         this.gulp.src('docs/assets/**/*', {cwd: __dirname})
-          .pipe(this.gulp.dest(this.basePath + '/dist-docs/assets'))
+          .pipe(this.gulp.dest(this.paths.destination.docs + '/assets'))
           .on('end', () => {
             done();
           });
       });
+    }
+
+  }
+
+  typedoc() {
+
+    return () => {
+
+      const config = _.merge(require(this.paths.source.all.tsConfig).compilerOptions, {
+        // TypeScript options (see typescript docs)
+        // module: "commonjs",
+        // target: "es5",
+        // includeDeclarations: true,
+
+        // Output options (see typedoc docs)
+        out: this.paths.destination.docs + '/api',
+        // json: "output/to/file.json",
+
+        // TypeDoc options (see typedoc docs)
+        // name: "my-project",
+        theme: __dirname + "/docs/api",
+        // plugins: ["my", "plugins"],
+        // ignoreCompilerErrors: false,
+        version: true,
+      });
+
+      return this.gulp
+        .src([].concat(this.paths.source.all.ts, this.paths.source.all.definitions))
+        .pipe(typedoc(_.omit(config, [
+          'sourceMap',
+          'removeComments',
+          'declaration',
+        ])));
     }
 
   }
@@ -361,6 +404,7 @@ class UbiquitsProject {
 
     this.registerTask('doc:watch', 'run documentation watcher', this.metalsmith('watch'));
     this.registerTask('doc:build', 'build documentation', this.metalsmith('build'));
+    this.registerTask('doc:api', 'build ts api documentation', this.typedoc());
 
     return this;
   }
@@ -390,7 +434,7 @@ class UbiquitsProject {
     });
 
     gulpInst.on('task_err', (e) => {
-      var msg = this.formatError(e);
+      var msg  = this.formatError(e);
       var time = prettyTime(e.hrDuration);
       this.log(
         '\'' + chalk.cyan(e.task) + '\'',
