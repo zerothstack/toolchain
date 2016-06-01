@@ -1,0 +1,20 @@
+{{> head }}
+{{> header }}
+
+<main>
+
+    <div class="container">
+        <h1>{{ title }}</h1>
+        {{{ contents }}}
+    </div>
+
+    <div class="container">
+        <ul>
+            {{#each collections.news }}
+                <li><a href="/{{ path }}">{{ title }}</a></li>
+            {{/each}}
+        </ul>
+    </div>
+</main>
+
+{{> footer }}

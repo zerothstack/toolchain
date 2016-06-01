@@ -15,10 +15,6 @@ p {
   line-height: 2rem;
 }
 
-.button-collapse {
-  color: #26a69a;
-}
-
 .parallax-container {
   min-height: 380px;
   line-height: 0;
@@ -54,4 +50,31 @@ p {
 
 footer.page-footer {
   margin: 0;
+}
+
+header, main, footer {
+  padding-left: 240px;
+}
+
+@media only screen and (max-width : 992px) {
+  header, main, footer {
+    padding-left: 0;
+  }
+}
+
+li.logo {
+  margin-bottom: 150px;
+}
+
+#logo-container img {
+  margin: auto;
+  display: block;
+  width: 70%;
+  height: auto;
+}
+
+a#logo-container {
+  width: 100%;
+  padding: 0;
+  text-align: center;
 }

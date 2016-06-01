@@ -1,20 +1,21 @@
-<!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
-        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no"/>
-        <title>Parallax Template - Materialize</title>
+<header>
 
-        <!-- CSS  -->
-        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-        <link href="/assets/css/materialize.css" type="text/css" rel="stylesheet" media="screen,projection"/>
-        <link href="/assets/css/style.css" type="text/css" rel="stylesheet" media="screen,projection"/>
+    <nav class="top-nav" role="navigation">
+        <div class="container">
+            <a href="#" data-activates="nav-mobile"
+               class="button-collapse top-nav waves-effect waves-light circle hide-on-large-only">
+                <i class="material-icons">menu</i>
+            </a>
+        </div>
 
-        <link rel="stylesheet" href="/assets/css/prism.css">
-    </head>
-    <body>
-        <header>
-            <p>
-                <a href="/">Home</a>
-            </p>
-        </header>
+        <div class="nav-wrapper container">
+            <ul class="right">
+                {{#each collections.main }}
+                    <li class="{{ifEqual ../path path 'active' }}{{ifIncludes ../collection path 'active' }}"><a href="/{{ path }}">{{ title }}</a></li>
+                {{/each}}
+            </ul>
+        </div>
+    </nav>
+
+    {{> nav }}
+</header>

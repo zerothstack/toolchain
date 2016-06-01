@@ -1,0 +1,16 @@
+{{> head }}
+{{> header }}
+<main>
+
+    {{{ contents }}}
+
+    <iframe src="/typedoc"
+            frameborder="0"
+            width="100%"
+            onload="this.height=this.contentWindow.document.body.scrollHeight;"
+            sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
+            allowtransparency="true"></iframe>
+
+
+</main>
+{{> footer }}

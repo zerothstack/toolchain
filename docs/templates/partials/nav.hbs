@@ -1,13 +1,31 @@
-<nav class="white" role="navigation">
-    <div class="nav-wrapper container">
-        <a id="logo-container" href="#" class="brand-logo">Logo</a>
-        <ul class="right hide-on-med-and-down">
-            <li><a href="#">Navbar Link</a></li>
-        </ul>
 
-        <ul id="nav-mobile" class="side-nav">
-            <li><a href="#">Navbar Link</a></li>
-        </ul>
-        <a href="#" data-activates="nav-mobile" class="button-collapse"><i class="material-icons">menu</i></a>
-    </div>
-</nav>
+    <ul id="nav-mobile" class="side-nav fixed">
+        <li class="logo">
+            <a id="logo-container" href="/" class="brand-logo">
+                <img src="/static/ubiquits.svg" alt="Logo">
+            </a>
+        </li>
+        {{#each collections.main as |section key| }}
+            {{#ifHasSubnav section ../collections }}
+
+                <li class="no-padding">
+                    <ul class="collapsible collapsible-accordion">
+                        <li class="bold"><a class="{{ifIncludes ../../collection ../path 'active' }} collapsible-header waves-effect waves-indigo">{{ title }}</a>
+                            <div class="collapsible-body">
+                                <ul>
+                                    {{#each collection }}
+                                        <li class="{{ifEqual ../../../path path 'active' }}"><a href="/{{ path }}">{{ title }}</a></li>
+                                    {{/each}}
+                                </ul>
+                            </div>
+                        </li>
+                    </ul>
+                </li>
+            {{else}}
+                <li class="bold {{ifEqual ../path path 'active' }}">
+                    <a href="/{{ path }}" class="waves-effect waves-indigo">{{ title }}</a>
+                </li>
+            {{/ifHasSubnav}}
+        {{/each}}
+    </ul>
+

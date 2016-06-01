@@ -312,12 +312,12 @@ class UbiquitsProject {
         // includeDeclarations: true,
 
         // Output options (see typedoc docs)
-        out: this.paths.destination.docs + '/api',
-        // json: "output/to/file.json",
+        out: this.paths.destination.docs + '/typedoc',
+        // json: this.paths.destination.docs + '/api.json',
 
         // TypeDoc options (see typedoc docs)
         // name: "my-project",
-        theme: __dirname + "/docs/api",
+        // theme: __dirname + "/docs/api",
         // plugins: ["my", "plugins"],
         // ignoreCompilerErrors: false,
         version: true,
