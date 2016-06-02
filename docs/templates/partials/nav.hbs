@@ -1,9 +1,7 @@
 
     <ul id="nav-mobile" class="side-nav fixed">
         <li class="logo">
-            <a id="logo-container" href="/" class="brand-logo">
-                <img src="/static/ubiquits.svg" alt="Logo">
-            </a>
+            {{> logo }}
         </li>
         {{#each collections.main as |section key| }}
             {{#ifHasSubnav section ../collections }}

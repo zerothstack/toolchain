@@ -25,7 +25,8 @@ const tap            = require('gulp-tap');
 const cp             = require('child_process');
 const coveralls      = require('coveralls');
 const metalsmithTask = require('./docs/metalsmith');
-const typedoc        = require("gulp-typedoc");
+const typedoc        = require('gulp-typedoc');
+const vfs            = require('vinyl-fs');
 
 class UbiquitsProject {
 
@@ -292,8 +293,8 @@ class UbiquitsProject {
 
         this.log('copying assets');
 
-        this.gulp.src('docs/assets/**/*', {cwd: __dirname})
-          .pipe(this.gulp.dest(this.paths.destination.docs + '/assets'))
+        vfs.src('docs/assets/**/*', {cwd: __dirname})
+          .pipe(vfs.dest(this.paths.destination.docs + '/assets', {overwrite: false}))
           .on('end', () => {
             done();
           });

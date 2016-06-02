@@ -5,7 +5,6 @@ const permalinks    = require('metalsmith-permalinks');
 const serve         = require('metalsmith-serve');
 const watch         = require('@xiphiaz/metalsmith-watch');
 const prism         = require('metalsmith-prism');
-const copy          = require('metalsmith-copy');
 const collections   = require('metalsmith-collections');
 const define        = require('metalsmith-define');
 const dateFormatter = require('metalsmith-date-formatter');
@@ -92,6 +91,9 @@ function config(task, pathConfig) {
     .use(collections({
       main: {
         sortBy: 'collectionSort',
+      },
+      guide: {
+        sortBy: 'collectionSort',
       }
     }))
     .use(permalinks({ relative: false }))
@@ -105,10 +107,6 @@ function config(task, pathConfig) {
       exposeConsolidate: (requires) => {
         requires.handlebars = handlebars;
       }
-    }))
-    .use(copy({
-      pattern: './static/*',
-      directory: 'static'
     }));
 }
 
