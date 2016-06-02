@@ -27,6 +27,8 @@ const coveralls      = require('coveralls');
 const metalsmithTask = require('./docs/metalsmith');
 const typedoc        = require('gulp-typedoc');
 const vfs            = require('vinyl-fs');
+const git            = require('nodegit');
+const execSync       = require('child_process').execSync;
 
 class UbiquitsProject {
 
@@ -337,6 +339,78 @@ class UbiquitsProject {
 
   }
 
+  gitDeploy(config) {
+
+    return (done) => {
+
+      const dir = path.resolve(this.basePath, config.dir);
+      const pkg = require(this.basePath + '/package.json');
+
+      let index, repository;
+
+      this.log(`Initializing repo at ${dir}`);
+      git.Repository.init(dir, 0)
+        .then((repo) => {
+          repository = repo;
+          this.log(`refreshing index`);
+          return repo.refreshIndex();
+        })
+        .then((idx) => {
+          index = idx;
+          this.log(`adding files`);
+          return index.addAll();
+        })
+        .then(() => {
+          this.log(`writing tree`);
+          return index.writeTree();
+        })
+        .then((oid) => {
+          this.log(`committing`);
+          //@todo get author from last commit in parent repo
+          const author = git.Signature.create(pkg.author.name, pkg.author.email, Math.round(Date.now() / 1000), 60);
+          //@todo get commit message from last commit in parent repo
+          return repository.createCommit("HEAD", author, author, "message", oid, []);
+        })
+        .then(() => {
+          this.log(`adding remote`);
+          return git.Remote.create(repository, 'deploy', config.repo);
+        })
+        .then((remote) => {
+          this.log(`pushing`);
+
+          // const out = execSync(`git push deploy ${config.branch} -f`, {
+          //   cwd: dir
+          // });
+
+          // this.log(out);
+          //
+          // return out;
+
+          //@todo use nodegit call when https://github.com/nodegit/nodegit/issues/1035 is resolved
+          // return remote.push([`+refs/heads/master:refs/heads/${config.branch}`], {
+          //   callbacks: {
+          //     certificateCheck: () => 1,
+          //     credentials: function (url, userName) {
+          //       console.log(`getting creds for url:${url} username:${userName}`);
+          //       return git.Cred.sshKeyFromAgent(userName);
+          //     },
+          //     transferProgress: (progress) => {
+          //       this.log('progress: ', progress)
+          //     }
+          //   }
+          // })
+        })
+        .catch((e) => {
+          console.log(e);
+        })
+        .done(() => {
+          done();
+        })
+
+    }
+
+  }
+
   registerDefaultTasks() {
 
     this.registerTask('clean:lib', 'removes the lib directory', this.clean(this.paths.destination.lib));
@@ -408,6 +482,11 @@ class UbiquitsProject {
     this.registerTask('doc:watch', 'run documentation watcher', this.metalsmith('watch'));
     this.registerTask('doc:build', 'build documentation', this.metalsmith('build'));
     this.registerTask('doc:api', 'build ts api documentation', this.typedoc());
+    this.registerTask('doc:deploy', 'deploy documentation documentation', this.gitDeploy({
+      repo: 'git@github.com:ubiquits/ubiquits.github.io.git',
+      branch: 'master',
+      dir: this.paths.destination.docs
+    }));
 
     return this;
   }
