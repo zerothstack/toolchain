@@ -2,15 +2,11 @@
 {{> header }}
 <main>
 
-    {{{ contents }}}
-
-    <iframe src="/typedoc"
-            frameborder="0"
-            width="100%"
-            onload="this.height=this.contentWindow.document.body.scrollHeight;"
-            sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
-            allowtransparency="true"></iframe>
-
+    <object data="/typedoc" width="100%" style="visibility:hidden" onload="this.height=this.contentDocument.body.scrollHeight + 100;this.style.visibility='visible'">
+        <div class="container">
+            {{{contents}}}
+        </div>
+    </object>
 
 </main>
 {{> footer }}

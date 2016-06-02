@@ -9,6 +9,9 @@
         </div>
 
         <div class="nav-wrapper container">
+            <ul class="left">
+                <li><a class="waves-effect waves-light btn btn-flat white" style="text-transform: none;" target="_blank" href="{{pkg.homepage}}">{{pkg.name}} v.{{ pkg.version }}</a></li>
+            </ul>
             <ul class="right">
                 {{#each collections.main }}
                     <li class="{{ifEqual ../path path 'active' }}{{ifIncludes ../collection path 'active' }}"><a href="/{{ path }}">{{ title }}</a></li>

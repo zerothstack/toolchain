@@ -4,7 +4,13 @@
 
     <div class="container">
         <h1>{{ title }}</h1>
-        <time>{{ date }}</time>
+
+        <ul class="section table-of-contents">
+            {{#each headings }}
+                <li><a href="#{{ id }}">{{{ifEqual tag 'h3' '&emsp;' }}}# {{ text }}</a></li>
+            {{/each}}
+        </ul>
+
         {{{ contents }}}
     </div>
 </main>

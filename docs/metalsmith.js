@@ -1,39 +1,42 @@
-const Metalsmith  = require('metalsmith');
-const markdown    = require('metalsmith-markdown');
-const layouts     = require('@xiphiaz/metalsmith-layouts');
-const permalinks  = require('metalsmith-permalinks');
-const serve       = require('metalsmith-serve');
-const watch       = require('@xiphiaz/metalsmith-watch');
-const prism       = require('metalsmith-prism');
-const copy        = require('metalsmith-copy');
-const collections = require('metalsmith-collections');
-const handlebars  = require('handlebars');
-const util        = require('util');
-const _ = require('lodash');
+const Metalsmith    = require('metalsmith');
+const markdown      = require('metalsmith-markdown');
+const layouts       = require('@xiphiaz/metalsmith-layouts');
+const permalinks    = require('metalsmith-permalinks');
+const serve         = require('metalsmith-serve');
+const watch         = require('@xiphiaz/metalsmith-watch');
+const prism         = require('metalsmith-prism');
+const copy          = require('metalsmith-copy');
+const collections   = require('metalsmith-collections');
+const define        = require('metalsmith-define');
+const dateFormatter = require('metalsmith-date-formatter');
+const headings      = require('metalsmith-headings');
+const handlebars    = require('handlebars');
+const util          = require('util');
+const _             = require('lodash');
 
 handlebars.registerHelper('debug', (optionalValue) => {
 
   if (optionalValue) {
-    return util.inspect(optionalValue, {depth:10});
+    return util.inspect(optionalValue, {depth: 10});
   }
 
-  return util.inspect(this, {depth:10});
+  return util.inspect(this, {depth: 10});
 });
 
 handlebars.registerHelper('ifEqual', (a, b, str) => {
-  return _.isEqual(a,  b) ? str:null;
+  return _.isEqual(a, b) ? str : null;
 });
 
 handlebars.registerHelper('ifIncludes', (a, b, str) => {
-  return _.includes(a,  b) ? str:null;
+  return _.includes(a, b) ? str : null;
 });
 
-handlebars.registerHelper('ifHasSubnav', function(section, allCollections, options) {
+handlebars.registerHelper('ifHasSubnav', function (section, allCollections, options) {
 
   let collection = allCollections[section.path];
 
-  if(collection) {
-    return options.fn({collection, title:section.title});
+  if (collection) {
+    return options.fn({collection, title: section.title});
   }
   return options.inverse(this);
 });
@@ -78,12 +81,21 @@ function config(task, pathConfig) {
   }
 
   return metalsmith
+    .use(define({
+      pkg: require(pathConfig.root + '/package.json'),
+    }))
     .use(markdown({langPrefix: 'language-'}))
+    .use(headings({selectors: ['h2', 'h3']}))
     .use(prism({
       lineNumbers: true
     }))
-    .use(collections())
-    .use(permalinks())
+    .use(collections({
+      main: {
+        sortBy: 'collectionSort',
+      }
+    }))
+    .use(permalinks({ relative: false }))
+    .use(dateFormatter())
     .use(layouts({
       engine: 'handlebars',
       directory: pathConfig.templates,

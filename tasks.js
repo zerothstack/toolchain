@@ -75,6 +75,7 @@ class UbiquitsProject {
         },
         docs: {
           base: './docs',
+          root: this.basePath,
           templates: 'templates',
           partials: 'templates/partials',
         }
@@ -317,7 +318,8 @@ class UbiquitsProject {
 
         // TypeDoc options (see typedoc docs)
         // name: "my-project",
-        // theme: __dirname + "/docs/api",
+        readme: 'none',
+        theme: __dirname + "/docs/api",
         // plugins: ["my", "plugins"],
         // ignoreCompilerErrors: false,
         version: true,
