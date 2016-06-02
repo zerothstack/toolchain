@@ -1,0 +1,12 @@
+{{> head }}
+{{> header }}
+<main>
+
+    <object data="/typedoc" width="100%" style="visibility:hidden" onload="this.height=this.contentDocument.body.scrollHeight + 100;this.style.visibility='visible'">
+        <div class="container">
+            {{{contents}}}
+        </div>
+    </object>
+
+</main>
+{{> footer }}

@@ -1,0 +1,29 @@
+
+    <ul id="nav-mobile" class="side-nav fixed">
+        <li class="logo">
+            {{> logo }}
+        </li>
+        {{#each collections.main as |section key| }}
+            {{#ifHasSubnav section ../collections }}
+
+                <li class="no-padding">
+                    <ul class="collapsible collapsible-accordion">
+                        <li class="bold"><a class="{{ifIncludes ../../collection ../path 'active' }} collapsible-header waves-effect waves-grey">{{ title }}</a>
+                            <div class="collapsible-body">
+                                <ul>
+                                    {{#each collection }}
+                                        <li class="{{ifEqual ../../../path path 'active' }}"><a href="/{{ path }}">{{ title }}</a></li>
+                                    {{/each}}
+                                </ul>
+                            </div>
+                        </li>
+                    </ul>
+                </li>
+            {{else}}
+                <li class="bold {{ifEqual ../path path 'active' }}">
+                    <a href="/{{ path }}" class="waves-effect waves-grey">{{ title }}</a>
+                </li>
+            {{/ifHasSubnav}}
+        {{/each}}
+    </ul>
+
