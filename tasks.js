@@ -28,6 +28,7 @@ const metalsmithTask = require('./docs/metalsmith');
 const typedoc        = require('gulp-typedoc');
 const vfs            = require('vinyl-fs');
 const git            = require('nodegit');
+const filesize       = require('filesize');
 const execSync       = require('child_process').execSync;
 
 class UbiquitsProject {
@@ -92,7 +93,21 @@ class UbiquitsProject {
         docs: './dist-docs'
       }
     }, paths);
+    
+    this.deploymentConfig = {
+      docs: {
+        repo: null,
+        remote: 'origin',
+        branch: 'gh-pages',
+        dir: this.paths.destination.docs
+      }
+    };
 
+  }
+  
+  configureDeployment(config) {
+    this.deploymentConfig = _.merge(this.deploymentConfig, config);
+    return this;
   }
 
   registerTask(name, help, task, dependencies) {
@@ -343,13 +358,27 @@ class UbiquitsProject {
 
     return (done) => {
 
-      const dir = path.resolve(this.basePath, config.dir);
-      const pkg = require(this.basePath + '/package.json');
+      const dir     = path.resolve(this.basePath, config.dir);
+      const pkg     = require(this.basePath + '/package.json');
+      const repoUrl = pkg.repository.url.split(/\.git$|^git\+/).filter(p=>!!p).pop();
 
-      let index, repository;
+      let index, baseRepository, repository, author, commit;
 
-      this.log(`Initializing repo at ${dir}`);
-      git.Repository.init(dir, 0)
+      git.Repository.open(this.basePath)
+        .then((repo) => {
+          baseRepository = repo;
+          this.log(`finding last commit at ${this.basePath}`);
+          return repo.getHeadCommit();
+        })
+        .then((c) => {
+          commit = c;
+          author = commit.author();
+          this.log(`Found commit: ${author.name()} - ${commit.message()}`);
+        })
+        .then(() => {
+          this.log(`Initializing repo at ${dir}`);
+          return git.Repository.init(dir, 0);
+        })
         .then((repo) => {
           repository = repo;
           this.log(`refreshing index`);
@@ -361,21 +390,38 @@ class UbiquitsProject {
           return index.addAll();
         })
         .then(() => {
+
+          const totalFileSize = index.entries().reduce((sum, file) => sum + file.fileSize, 0);
+
+          this.log(`Added ${index.entryCount()} files totalling ${filesize(totalFileSize)}`);
+
           this.log(`writing tree`);
           return index.writeTree();
         })
         .then((oid) => {
           this.log(`committing`);
-          //@todo get author from last commit in parent repo
-          const author = git.Signature.create(pkg.author.name, pkg.author.email, Math.round(Date.now() / 1000), 60);
-          //@todo get commit message from last commit in parent repo
-          return repository.createCommit("HEAD", author, author, "message", oid, []);
+          return repository.createCommit("HEAD", author, author, `Docs deploy: | ${commit.message()} - ${repoUrl}/commit/${commit.id()}`, oid, []);
         })
         .then(() => {
-          this.log(`adding remote`);
-          return git.Remote.create(repository, 'deploy', config.repo);
+          if (!!config.repo){
+            this.log(`creating configure repo remote`);
+            return git.Remote.create(repository, config.remote, config.repo);
+          }
+
+          this.log(`retrieving remote url from parent repo`);
+          return git.Remote.lookup(baseRepository, config.remote)
+            .then((remote) => {
+              this.log(`found remote url ${remote.url()}`);
+
+              if (remote.name() == 'origin' && config.branch == 'master'){
+                throw new Error(`refusing to set remote to root origin and branch to master. You probably want to configure brance gh-pages or a different repo`);
+              }
+
+              return git.Remote.create(repository, remote.name(), remote.url());
+            });
         })
         .then((remote) => {
+          this.log(`added remote: ${remote.name()} ${remote.url()}`);
           this.log(`pushing`);
 
           // const out = execSync(`git push deploy ${config.branch} -f`, {
@@ -387,21 +433,21 @@ class UbiquitsProject {
           // return out;
 
           //@todo use nodegit call when https://github.com/nodegit/nodegit/issues/1035 is resolved
-          // return remote.push([`+refs/heads/master:refs/heads/${config.branch}`], {
-          //   callbacks: {
-          //     certificateCheck: () => 1,
-          //     credentials: function (url, userName) {
-          //       console.log(`getting creds for url:${url} username:${userName}`);
-          //       return git.Cred.sshKeyFromAgent(userName);
-          //     },
-          //     transferProgress: (progress) => {
-          //       this.log('progress: ', progress)
-          //     }
-          //   }
-          // })
+          return remote.push([`+refs/heads/master:refs/heads/${config.branch}`], {
+            callbacks: {
+              certificateCheck: () => 1,
+              credentials: function (url, userName) {
+                console.log(`getting creds for url:${url} username:${userName}`);
+                return git.Cred.sshKeyFromAgent(userName);
+              },
+              transferProgress: (progress) => {
+                this.log('progress: ', progress)
+              }
+            }
+          });
         })
         .catch((e) => {
-          console.log(e);
+          this.log(e);
         })
         .done(() => {
           done();
@@ -482,11 +528,7 @@ class UbiquitsProject {
     this.registerTask('doc:watch', 'run documentation watcher', this.metalsmith('watch'));
     this.registerTask('doc:build', 'build documentation', this.metalsmith('build'));
     this.registerTask('doc:api', 'build ts api documentation', this.typedoc());
-    this.registerTask('doc:deploy', 'deploy documentation documentation', this.gitDeploy({
-      repo: 'git@github.com:ubiquits/ubiquits.github.io.git',
-      branch: 'master',
-      dir: this.paths.destination.docs
-    }));
+    this.registerTask('doc:deploy', 'deploy documentation documentation', this.gitDeploy(this.deploymentConfig.docs));
 
     return this;
   }
@@ -536,6 +578,11 @@ class UbiquitsProject {
   }
 
   log() {
+    
+    const taskname = this.gulp.seq.slice(-1)[0];
+    const task = chalk.white('['+chalk.cyan(taskname)+']');
+    
+    Array.prototype.unshift.call(arguments, task);
     gutil.log.apply(this, arguments);
   }
 
