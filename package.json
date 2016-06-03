@@ -1,6 +1,6 @@
 {
   "name": "@ubiquits/toolchain",
-  "version": "0.0.12",
+  "version": "0.0.13",
   "description": "Toolchain for ubiquits projects, modules & core",
   "main": "index.js",
   "scripts": {
