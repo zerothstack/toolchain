@@ -424,20 +424,11 @@ class UbiquitsProject {
           this.log(`added remote: ${remote.name()} ${remote.url()}`);
           this.log(`pushing`);
 
-          // const out = execSync(`git push deploy ${config.branch} -f`, {
-          //   cwd: dir
-          // });
-
-          // this.log(out);
-          //
-          // return out;
-
-          //@todo use nodegit call when https://github.com/nodegit/nodegit/issues/1035 is resolved
           return remote.push([`+refs/heads/master:refs/heads/${config.branch}`], {
             callbacks: {
               certificateCheck: () => 1,
-              credentials: function (url, userName) {
-                console.log(`getting creds for url:${url} username:${userName}`);
+              credentials: (url, userName) => {
+                this.log(`getting creds from agent url:${url} username:${userName}`);
                 return git.Cred.sshKeyFromAgent(userName);
               },
               transferProgress: (progress) => {
@@ -449,7 +440,8 @@ class UbiquitsProject {
         .catch((e) => {
           this.log(e);
         })
-        .done(() => {
+        .then(() => {
+          this.log(`Push complete.`);
           done();
         })
 
