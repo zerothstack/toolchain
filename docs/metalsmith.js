@@ -74,7 +74,7 @@ function config(task, pathConfig) {
         port: 8081,
         verbose: true,
         http_error_files: {
-          404: "/404/index.html"
+          404: "/404.html"
         }
       }));
   }

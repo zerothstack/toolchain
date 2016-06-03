@@ -22,7 +22,8 @@ module.exports = {
       "web_modules",
       "node_loaders",
       "node_modules",
-      "node_modules/@ubiquits/toolchain/node_modules"
+      //make sure to scan the toolchains packages if npm does not hoist them to be a flat tree
+      require.resolve('@ubiquits/toolchain/package.json').replace('package.json', 'node_modules')
     ],
   },
 

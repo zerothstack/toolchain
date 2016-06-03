@@ -26,8 +26,7 @@ const hot = {
   // See https://github.com/glenjamin/webpack-hot-middleware
 };
 
-console.log(config.entry.app);
-config.entry.app.unshift(path.resolve(__dirname, '..', "node_modules/webpack-dev-server/client/index.js") + '?http://localhost:3000/');
+config.entry.app.unshift(require.resolve('webpack-dev-server/client/index.js') + '?http://localhost:3000/');
 
 /**
  * Register plugin and start server
