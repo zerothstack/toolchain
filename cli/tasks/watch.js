@@ -5,8 +5,9 @@ const util    = require('util');
 const _       = require('lodash');
 
 const {build} = require('./build');
+const {clean} = require('./clean');
 
-function validateArgs(args, runnerRef) {
+function validateArgs(args, runnerRef, options) {
   switch (args.command) {
     case 'stop':
       if (!runnerRef) {
@@ -28,12 +29,13 @@ function validateArgs(args, runnerRef) {
 function task(cli, project) {
 
   let runnerRef;
+  const options = ['start', 'stop'];
 
   cli.command('watch [command]', 'Start watcher')
     .alias('w')
     .action(function (args, callback) {
 
-      const validate = validateArgs(args, runnerRef);
+      const validate = validateArgs(args, runnerRef, options);
       if (validate !== true) {
         this.log(chalk.red(validate));
         return callback();
@@ -50,7 +52,8 @@ function task(cli, project) {
         case undefined:
         case 'run':
         case 'start':
-          return build(project, this)
+          return clean(project, this, 'lib')
+            .then(() => build(project, this, 'server'))
             .then(() => watchServer(project, this))
             .then((runner) => {
               runnerRef = runner;
@@ -67,7 +70,7 @@ function watchServer(project, cli) {
     const runner = nodemon({
       script: path.resolve(__dirname, '../..', 'server/localhost.js'),
       stdout: false,
-      'ext': 'js json ts',
+      ext: 'js json ts',
       watch: [
         project.resolvePath('src/server'),
         project.resolvePath('src/common'),
@@ -102,13 +105,18 @@ function watchServer(project, cli) {
     });
 
     runner.on('readable', function () {
+      
       this.stdout.on('data', (chunk) => {
         let log = chunk.toString();
-
         if (_.includes(log, 'bundle is now VALID')) {
           cli.log('Returning control to user');
           resolve(runner);
         }
+        cli.log(chalk.green('[node]'), log);
+      });
+
+      this.stderr.on('data', (chunk) => {
+        let log = chunk.toString();
         cli.log(chalk.red('[node]'), log);
       });
 

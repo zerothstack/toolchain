@@ -7,15 +7,20 @@ const chalk   = require('chalk');
 const {UbiquitsProject} = require('../project');
 // const spawn  = require('child_process').spawn;
 
-vantage
-  .delimiter(chalk.green('ubiquits~$'));
+
+const originalLog = vantage.session.log;
+vantage.session.log = function(...args){
+
+
+  let prev = this._hist[this._hist.length - 1].split(' ').shift();
+  const task = chalk.white('['+chalk.cyan(prev)+']');
+  args.unshift(task);
+  originalLog.apply(this, args);
+};
+
 
 vantage
-  .command('foo', 'Outputs "bar".')
-  .action(function (args, callback) {
-    this.log('bar');
-    callback();
-  });
+  .delimiter(chalk.green('ubiquits~$'));
 
 vantage
   .catch('[words...]', 'Catches incorrect commands')
@@ -43,9 +48,17 @@ vantage
     // });
   });
 
+
+vantage
+  .command('foo', 'Outputs "bar".')
+  .action(function (args, callback) {
+    this.log('bar');
+    callback();
+  });
+
 let project, defaultOnly = true;
 try {
-  project = require(process.cwd() + '/ubiquitsfile.js');
+  project = require(process.cwd() + '/ubiquits.js');
   defaultOnly = false
 } catch (e) {
   project = new UbiquitsProject(path.resolve(__dirname, '..'));
@@ -60,7 +73,7 @@ if (process.argv.length <= 2) {
     vantage.log(chalk.bold.gray(banner(chalk.white('$ Command Line Interface'))));
   }
 
-  defaultOnly && vantage.log(chalk.yellow(`Local ubiquitsfile.js not found, only default commands will be available`));
+  defaultOnly && vantage.log(chalk.yellow(`Local ubiquits.js not found, only default commands will be available`));
   vantage.log(chalk.blue(`Loaded ${project.commandRegistry.length} commands. Type 'help' to see available commands`));
 
 } else {

@@ -502,7 +502,7 @@ class UbiquitsProject {
       runSequence('test:server', 'test:browser', 'coverage:remap', callback);
     }, ['clean']);
 
-    /**/this.registerTask('jasmine:server', 'run server spec files', this.jasmine({
+    /*!*/this.registerTask('jasmine:server', 'run server spec files', this.jasmine({
       source: [this.paths.destination.server + '/**/*.js', '!' + this.paths.destination.server + '/**/bootstrap.js'],
       coverage: this.paths.destination.coverage + '/server/js'
     }));
@@ -515,7 +515,7 @@ class UbiquitsProject {
       coverage: this.paths.destination.coverage
     }));
 
-    /**/this.registerTask('watch', 'watch all files with nodemon', this.nodemon({
+    /*!*/this.registerTask('watch', 'watch all files with nodemon', this.nodemon({
       entryPoint: __dirname + '/server/localhost.js',
       tasks: ['build:server']
     }), ['build:server']);
@@ -544,8 +544,8 @@ class UbiquitsProject {
 
     /**/this.registerTask('coveralls', 'send code coverage data to coveralls', this.coveralls());
 
-    /**/this.registerTask('doc:watch', 'run documentation watcher', this.metalsmith('watch'));
-    /**/this.registerTask('doc:build', 'build documentation', this.metalsmith('build'));
+    /*!*/this.registerTask('doc:watch', 'run documentation watcher', this.metalsmith('watch'));
+    /*!*/this.registerTask('doc:build', 'build documentation', this.metalsmith('build'));
     /**/this.registerTask('doc:api', 'build ts api documentation', this.typedoc());
     /**/this.registerTask('doc:deploy', 'deploy documentation documentation', this.gitDeploy(this.deploymentConfig.docs));
 

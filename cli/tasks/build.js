@@ -38,7 +38,7 @@ function build(project, cli, context) {
         config = allConfig;
     }
 
-    cli.log('Building ts', config);
+    cli.log('Building ts');
 
     const tsProject = typescript.createProject(config.tsConfig);
     const tsResult  = project.gulp.src(config.source, {

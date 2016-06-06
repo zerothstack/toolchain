@@ -96,7 +96,7 @@ function config(task, pathConfig) {
         sortBy: 'collectionSort',
       }
     }))
-    .use(permalinks({ relative: false }))
+    .use(permalinks({relative: false}))
     .use(dateFormatter())
     .use(layouts({
       engine: 'handlebars',
