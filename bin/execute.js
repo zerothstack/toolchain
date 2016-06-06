@@ -1,9 +1,9 @@
 #! /usr/bin/env node
 
 const vantage = require('vantage')();
-const banner = require('../cli/banner.js');
-const path   = require('path');
-const chalk  = require('chalk');
+const banner  = require('../cli/banner.js');
+const path    = require('path');
+const chalk   = require('chalk');
 const {UbiquitsProject} = require('../project');
 // const spawn  = require('child_process').spawn;
 
@@ -43,11 +43,11 @@ vantage
     // });
   });
 
-let project;
+let project, defaultOnly = true;
 try {
   project = require(process.cwd() + '/ubiquitsfile.js');
+  defaultOnly = false
 } catch (e) {
-  vantage.log(chalk.yellow(`Local ubiquitsfile.js not found, default commands only will be available`));
   project = new UbiquitsProject(path.resolve(__dirname, '..'));
 }
 
@@ -55,11 +55,13 @@ project.loadRegisteredCommands(vantage);
 
 if (process.argv.length <= 2) {
 
+  vantage.show();
   if (process.stdout.columns > 68) {
-    vantage.banner(chalk.bold.gray(banner(chalk.white('$ Command Line Interface'))));
+    vantage.log(chalk.bold.gray(banner(chalk.white('$ Command Line Interface'))));
   }
 
-  vantage.show();
+  defaultOnly && vantage.log(chalk.yellow(`Local ubiquitsfile.js not found, only default commands will be available`));
+  vantage.log(chalk.blue(`Loaded ${project.commandRegistry.length} commands. Type 'help' to see available commands`));
 
 } else {
   vantage.parse(process.argv);

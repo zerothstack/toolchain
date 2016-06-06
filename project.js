@@ -125,10 +125,11 @@ class UbiquitsProject {
 
     this.readTasks();
 
-    vorpal.log(`Loading ${this.commandRegistry.length} commands`);
     this.commandRegistry.forEach((commandRegisterFn) => {
       commandRegisterFn(vorpal, this);
     });
+    
+    return this;
   }
   
   configureDeployment(config) {

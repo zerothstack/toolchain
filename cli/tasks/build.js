@@ -8,7 +8,7 @@ function task(cli, project) {
   cli.command('build [environment]', 'Builds typescript files')
     .action(function (args, callback) {
 
-      return build(project, this, args.environemnt);
+      return build(project, this, args.environment);
     });
 
 }
