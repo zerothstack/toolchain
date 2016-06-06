@@ -29,7 +29,7 @@ const typedoc        = require('gulp-typedoc');
 const vfs            = require('vinyl-fs');
 const git            = require('nodegit');
 const filesize       = require('filesize');
-const execSync       = require('child_process').execSync;
+const {execSync}       = require('child_process');
 
 class UbiquitsProject {
 
@@ -116,7 +116,7 @@ class UbiquitsProject {
     var taskDirectory = path.resolve(__dirname+'/cli/tasks');
 
     fs.readdirSync(taskDirectory).forEach((file) => {
-      this.commandRegistry.push(require(path.resolve(taskDirectory, file)));
+      this.commandRegistry.push(require(path.resolve(taskDirectory, file)).task);
     });
 
   }
@@ -481,32 +481,32 @@ class UbiquitsProject {
     /*!*/this.registerTask('clean:coverage', 'removes the coverage directory', this.clean(this.paths.destination.coverage));
     /*!*/this.registerTask('clean:dist', 'removes the dist directory', this.clean(this.paths.destination.dist));
 
-    /**/this.registerTask('clean', 'lib & coverage directories', null, ['clean:lib', 'clean:coverage', 'clean:dist']);
+    /*!*/this.registerTask('clean', 'lib & coverage directories', null, ['clean:lib', 'clean:coverage', 'clean:dist']);
 
-    this.registerTask('tslint', 'lint files', this.tslint(this.paths.source.server.ts));
+    /*!*/this.registerTask('tslint', 'lint files', this.tslint(this.paths.source.server.ts));
 
-    this.registerTask('build:server', 'compile API files', this.compileTs({
+    /*!*/this.registerTask('build:server', 'compile API files', this.compileTs({
       source: [].concat(this.paths.source.server.ts, this.paths.source.server.definitions),
       destination: this.paths.destination.server,
       tsConfig: this.paths.source.all.tsConfig
     }), ['clean:lib']);
 
-    this.registerTask('instrument:server', 'instrument server files', this.instrument(this.paths.destination.server + '/**/*.js'));
+    /*!*/this.registerTask('instrument:server', 'instrument server files', this.instrument(this.paths.destination.server + '/**/*.js'));
 
-    this.registerTask('test:server', 'run server tests', (callback) => {
+    /*!*/this.registerTask('test:server', 'run server tests', (callback) => {
       runSequence('build:server', 'instrument:server', 'jasmine:server', callback);
     });
 
-    this.registerTask('test', 'run all tests', (callback) => {
+    /**/this.registerTask('test', 'run all tests', (callback) => {
       runSequence('test:server', 'test:browser', 'coverage:remap', callback);
     }, ['clean']);
 
-    this.registerTask('jasmine:server', 'run server spec files', this.jasmine({
+    /**/this.registerTask('jasmine:server', 'run server spec files', this.jasmine({
       source: [this.paths.destination.server + '/**/*.js', '!' + this.paths.destination.server + '/**/bootstrap.js'],
       coverage: this.paths.destination.coverage + '/server/js'
     }));
 
-    this.registerTask('coverage:remap', 'remap coverage files to typescript sources', this.remapCoverage({
+    /**/this.registerTask('coverage:remap', 'remap coverage files to typescript sources', this.remapCoverage({
       source: [
         this.resolvePath('./coverage/browser/js/coverage-final.json'),
         this.resolvePath('./coverage/server/js/coverage-final.json'),
@@ -514,12 +514,12 @@ class UbiquitsProject {
       coverage: this.paths.destination.coverage
     }));
 
-    this.registerTask('watch', 'watch all files with nodemon', this.nodemon({
+    /**/this.registerTask('watch', 'watch all files with nodemon', this.nodemon({
       entryPoint: __dirname + '/server/localhost.js',
       tasks: ['build:server']
     }), ['build:server']);
 
-    this.registerTask('test:browser', 'test browser', (done) => {
+    /**/this.registerTask('test:browser', 'test browser', (done) => {
 
       new KarmaServer({
         configFile: __dirname + '/browser/karma.conf.js',
@@ -528,25 +528,25 @@ class UbiquitsProject {
       }, done).start();
     });
 
-    this.registerTask('compile:browser', 'compile browser', this.webpack({
+    /**/this.registerTask('compile:browser', 'compile browser', this.webpack({
       webpackPath: './browser/webpack.prod.js',
       destination: this.paths.destination.browser
     }), ['clean:dist']);
 
-    this.registerTask('build', 'build files', this.compileTs({
+    /**/this.registerTask('build', 'build files', this.compileTs({
       source: [].concat(this.paths.source.all.ts, this.paths.source.all.definitions),
       destination: this.paths.destination.lib,
       tsConfig: this.paths.source.all.tsConfig
     }), ['clean:lib']);
 
-    this.registerTask('compile', 'compile all files', null, ['compile:browser', 'build:server']);
+    /**/this.registerTask('compile', 'compile all files', null, ['compile:browser', 'build:server']);
 
-    this.registerTask('coveralls', 'send code coverage data to coveralls', this.coveralls());
+    /**/this.registerTask('coveralls', 'send code coverage data to coveralls', this.coveralls());
 
-    this.registerTask('doc:watch', 'run documentation watcher', this.metalsmith('watch'));
-    this.registerTask('doc:build', 'build documentation', this.metalsmith('build'));
-    this.registerTask('doc:api', 'build ts api documentation', this.typedoc());
-    this.registerTask('doc:deploy', 'deploy documentation documentation', this.gitDeploy(this.deploymentConfig.docs));
+    /**/this.registerTask('doc:watch', 'run documentation watcher', this.metalsmith('watch'));
+    /**/this.registerTask('doc:build', 'build documentation', this.metalsmith('build'));
+    /**/this.registerTask('doc:api', 'build ts api documentation', this.typedoc());
+    /**/this.registerTask('doc:deploy', 'deploy documentation documentation', this.gitDeploy(this.deploymentConfig.docs));
 
     return this;
   }

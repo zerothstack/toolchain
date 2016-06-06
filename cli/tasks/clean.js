@@ -1,19 +1,19 @@
 const rimraf = require('gulp-rimraf');
 const _      = require('lodash');
 
-module.exports = (cli, project) => {
+function task(cli, project) {
 
   cli.command('clean [dir]', 'Removes directories')
     .autocomplete(['lib', 'coverage', 'dist'])
     .action(function (args, callback) {
 
-      const options = ['coverage', 'lib', 'dist'];
+      const options = ['coverage', 'lib', 'dist', 'docs'];
 
       let directoryPromise;
 
-      if (args.dir && _.includes(options, args.dir)){
-        directoryPromise = Promise.resolve({directory:args.dir});
-      }else {
+      if (args.dir && _.includes(options, args.dir)) {
+        directoryPromise = Promise.resolve({directory: args.dir});
+      } else {
         directoryPromise = this.prompt([{
           name: 'directory',
           type: 'list',
@@ -50,4 +50,6 @@ module.exports = (cli, project) => {
 
     });
 
-};
+}
+
+module.exports = {task};

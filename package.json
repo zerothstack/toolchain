@@ -47,6 +47,7 @@
     "gulp-jasmine": "^2.3.0",
     "gulp-merge-json": "^0.4.0",
     "gulp-nodemon": "^2.0.7",
+    "gulp-plumber": "^1.1.0",
     "gulp-rimraf": "^0.2.0",
     "gulp-sourcemaps": "^1.6.0",
     "gulp-tap": "^0.1.3",

@@ -2,12 +2,10 @@
 
 const vorpal = require('vorpal')();
 const banner = require('../cli/banner.js');
-const path = require('path');
-const chalk = require('chalk');
-const UbiquitsProject = require('../project').UbiquitsProject;
+const path   = require('path');
+const chalk  = require('chalk');
+const {UbiquitsProject} = require('../project');
 // const spawn  = require('child_process').spawn;
-
-
 
 vorpal
   .delimiter(chalk.green('ubiquits~$'));
@@ -45,11 +43,10 @@ vorpal
     // });
   });
 
-
 let project;
 try {
   project = require(process.cwd() + '/ubiquitsfile.js');
-} catch(e){
+} catch (e) {
   vorpal.log(chalk.yellow(`Local ubiquitsfile.js not found, default commands only will be available`));
   project = new UbiquitsProject(path.resolve(__dirname, '..'));
 }
@@ -69,7 +66,7 @@ if (process.argv.length <= 2) {
   }, 2000);
 
   vorpal.on('keypress', () => {
-    if (vorpal.ui.input().length > 0){
+    if (vorpal.ui.input().length > 0) {
       clearTimeout(helpTimeout);
     }
   });
