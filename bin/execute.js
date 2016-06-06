@@ -1,23 +1,23 @@
 #! /usr/bin/env node
 
-const vorpal = require('vorpal')();
+const vantage = require('vantage')();
 const banner = require('../cli/banner.js');
 const path   = require('path');
 const chalk  = require('chalk');
 const {UbiquitsProject} = require('../project');
 // const spawn  = require('child_process').spawn;
 
-vorpal
+vantage
   .delimiter(chalk.green('ubiquits~$'));
 
-vorpal
+vantage
   .command('foo', 'Outputs "bar".')
   .action(function (args, callback) {
     this.log('bar');
     callback();
   });
 
-vorpal
+vantage
   .catch('[words...]', 'Catches incorrect commands')
   // .allowUnknownOptions()
   .action(function (args, cb) {
@@ -47,32 +47,22 @@ let project;
 try {
   project = require(process.cwd() + '/ubiquitsfile.js');
 } catch (e) {
-  vorpal.log(chalk.yellow(`Local ubiquitsfile.js not found, default commands only will be available`));
+  vantage.log(chalk.yellow(`Local ubiquitsfile.js not found, default commands only will be available`));
   project = new UbiquitsProject(path.resolve(__dirname, '..'));
 }
 
-project.loadRegisteredCommands(vorpal);
+project.loadRegisteredCommands(vantage);
 
 if (process.argv.length <= 2) {
 
-  vorpal.show();
   if (process.stdout.columns > 68) {
-    vorpal.log(chalk.bold.gray(banner(chalk.white('$ Command Line Interface'))));
+    vantage.banner(chalk.bold.gray(banner(chalk.white('$ Command Line Interface'))));
   }
 
-  const helpTimeout = setTimeout(() => {
-    vorpal.log(`Stuck? To get a list of available commands, type 'help'`);
-    vorpal.ui.input('help');
-  }, 2000);
-
-  vorpal.on('keypress', () => {
-    if (vorpal.ui.input().length > 0) {
-      clearTimeout(helpTimeout);
-    }
-  });
+  vantage.show();
 
 } else {
-  vorpal.parse(process.argv);
+  vantage.parse(process.argv);
 }
 
 

@@ -1,12 +1,13 @@
-const rimraf = require('gulp-rimraf');
-const _      = require('lodash');
+const rimraf   = require('gulp-rimraf');
+const _        = require('lodash');
+const plumber  = require('gulp-plumber');
+const inquirer = require('inquirer');
 
 function task(cli, project) {
 
   const options = ['coverage', 'lib', 'dist', 'docs'];
 
   cli.command('clean [dir]', 'Removes directories')
-    .autocomplete(options)
     .action(function (args, callback) {
 
       let directoryPromise;
@@ -14,7 +15,7 @@ function task(cli, project) {
       if (args.dir && _.includes(options, args.dir)) {
         directoryPromise = Promise.resolve({directory: args.dir});
       } else {
-        directoryPromise = this.prompt([{
+        directoryPromise = inquirer.prompt([{
           name: 'directory',
           type: 'list',
           message: 'Which directory?',
@@ -41,6 +42,7 @@ function task(cli, project) {
 
         this.log('Removing directory', prompt.directory);
         project.gulp.src(prompt.directory, {read: false, cwd: project.basePath})
+          .pipe(plumber(callback))
           .pipe(rimraf())
           .on('finish', () => {
             this.log('Done.');
