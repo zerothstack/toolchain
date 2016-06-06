@@ -23,7 +23,8 @@ module.exports = {
       "node_loaders",
       "node_modules",
       //make sure to scan the toolchains packages if npm does not hoist them to be a flat tree
-      require.resolve('@ubiquits/toolchain/package.json').replace('package.json', 'node_modules')
+      // require.resolve('@ubiquits/toolchain/package.json').replace('package.json', 'node_modules')
+      __dirname + '/node_modules'
     ],
   },
 

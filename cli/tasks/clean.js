@@ -3,11 +3,11 @@ const _      = require('lodash');
 
 function task(cli, project) {
 
-  cli.command('clean [dir]', 'Removes directories')
-    .autocomplete(['lib', 'coverage', 'dist'])
-    .action(function (args, callback) {
+  const options = ['coverage', 'lib', 'dist', 'docs'];
 
-      const options = ['coverage', 'lib', 'dist', 'docs'];
+  cli.command('clean [dir]', 'Removes directories')
+    .autocomplete(options)
+    .action(function (args, callback) {
 
       let directoryPromise;
 

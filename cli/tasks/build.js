@@ -5,22 +5,38 @@ const path       = require('path');
 
 function task(cli, project) {
 
-  cli.command('build [env]', 'Builds typescript files')
+  cli.command('build [environment]', 'Builds typescript files')
     .action(function (args, callback) {
 
-      return buildServer(project, this);
-
+      return build(project, this, args.environemnt);
     });
 
 }
 
-function buildServer(project, cli) {
+function build(project, cli, context) {
   return new Promise((resolve, reject) => {
-    let config = {
+
+    let config = {};
+    const allConfig = {
+      source: [].concat(project.paths.source.all.ts, project.paths.source.all.definitions),
+      destination: project.paths.destination.lib,
+      tsConfig: project.paths.source.all.tsConfig
+    };
+
+    const serverConfig = {
       source: [].concat(project.paths.source.server.ts, project.paths.source.server.definitions),
       destination: project.paths.destination.server,
       tsConfig: project.paths.source.all.tsConfig
     };
+
+    switch (context) {
+
+      case 'server':
+        config = serverConfig;
+        break;
+      default:
+        config = allConfig;
+    }
 
     cli.log('Building ts', config);
 
@@ -43,4 +59,4 @@ function buildServer(project, cli) {
 
 }
 
-module.exports = {task, buildServer};
+module.exports = {task, build};

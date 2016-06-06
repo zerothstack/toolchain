@@ -506,7 +506,7 @@ class UbiquitsProject {
       coverage: this.paths.destination.coverage + '/server/js'
     }));
 
-    /**/this.registerTask('coverage:remap', 'remap coverage files to typescript sources', this.remapCoverage({
+    /*!*/this.registerTask('coverage:remap', 'remap coverage files to typescript sources', this.remapCoverage({
       source: [
         this.resolvePath('./coverage/browser/js/coverage-final.json'),
         this.resolvePath('./coverage/server/js/coverage-final.json'),

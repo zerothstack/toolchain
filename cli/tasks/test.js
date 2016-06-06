@@ -9,14 +9,14 @@ const fs            = require('fs');
 const path          = require('path');
 const merge         = require('gulp-merge-json');
 
-const {buildServer} = require('./typescript');
+const {build} = require('./build');
 
 function task(cli, project) {
 
   cli.command('test [environment]', 'Run tests')
     .action(function (args, callback) {
 
-      return buildServer(project, this)
+      return build(project, this)
         .then(() => instrumentServer(project, this))
         .then(() => testServer(project, this))
         .then(() => remapCoverage(project, this))
