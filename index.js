@@ -1,3 +1,3 @@
-let {UbiquitsProject} = require('./tasks');
+let {UbiquitsProject} = require('./project');
 
 module.exports = {UbiquitsProject};

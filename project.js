@@ -103,6 +103,32 @@ class UbiquitsProject {
       }
     };
 
+    this.commandRegistry = [];
+
+  }
+
+  registerCommand(commandRegisterFn) {
+    this.commandRegistry.push(commandRegisterFn);
+    return this;
+  }
+
+  readTasks(){
+    var taskDirectory = path.resolve(__dirname+'/cli/tasks');
+
+    fs.readdirSync(taskDirectory).forEach((file) => {
+      this.commandRegistry.push(require(path.resolve(taskDirectory, file)));
+    });
+
+  }
+
+  loadRegisteredCommands(vorpal){
+
+    this.readTasks();
+
+    vorpal.log(`Loading ${this.commandRegistry.length} commands`);
+    this.commandRegistry.forEach((commandRegisterFn) => {
+      commandRegisterFn(vorpal, this);
+    });
   }
   
   configureDeployment(config) {
@@ -451,11 +477,11 @@ class UbiquitsProject {
 
   registerDefaultTasks() {
 
-    this.registerTask('clean:lib', 'removes the lib directory', this.clean(this.paths.destination.lib));
-    this.registerTask('clean:coverage', 'removes the coverage directory', this.clean(this.paths.destination.coverage));
-    this.registerTask('clean:dist', 'removes the dist directory', this.clean(this.paths.destination.dist));
+    /*!*/this.registerTask('clean:lib', 'removes the lib directory', this.clean(this.paths.destination.lib));
+    /*!*/this.registerTask('clean:coverage', 'removes the coverage directory', this.clean(this.paths.destination.coverage));
+    /*!*/this.registerTask('clean:dist', 'removes the dist directory', this.clean(this.paths.destination.dist));
 
-    this.registerTask('clean', 'lib & coverage directories', null, ['clean:lib', 'clean:coverage', 'clean:dist']);
+    /**/this.registerTask('clean', 'lib & coverage directories', null, ['clean:lib', 'clean:coverage', 'clean:dist']);
 
     this.registerTask('tslint', 'lint files', this.tslint(this.paths.source.server.ts));
 
