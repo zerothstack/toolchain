@@ -8,19 +8,43 @@ const remapIstanbul = require('remap-istanbul/lib/gulpRemapIstanbul');
 const fs            = require('fs');
 const path          = require('path');
 const merge         = require('gulp-merge-json');
+const KarmaServer   = require('karma').Server;
 
 const {build} = require('./build');
+const {clean} = require('./clean');
 
 function task(cli, project) {
 
   cli.command('test [environment]', 'Run tests')
+    .option('-s', '--serial', 'Run environments in serial (default is parallel)')
     .action(function (args, callback) {
 
-      return build(project, this)
-        .then(() => instrumentServer(project, this))
-        .then(() => testServer(project, this))
-        .then(() => remapCoverage(project, this))
-        .catch();
+      return clean(project, this, ['coverage', 'lib'])
+
+        .then(() => {
+          let testPromiseFactories = [];
+
+          if (!args.environment || args.environment == 'server') {
+            let serverTest = build(project, this, 'server')
+              .then(() => instrumentServer(project, this))
+              .then(() => testServer(project, this));
+            testPromiseFactories.push(() => serverTest);
+          }
+
+          if (!args.environment || args.environment == 'browser') {
+            testPromiseFactories.push(() => testBrowser(project, this));
+          }
+
+          if (args.options.s){
+            //run promises in serial
+            return testPromiseFactories.reduce((prior, next) => {
+              return prior.then(() => next());
+            }, Promise.resolve()); // initial
+          }
+
+          return Promise.all(testPromiseFactories.map(pf => pf()));
+        })
+        .then(() => remapCoverage(project, this));
 
     });
 
@@ -53,7 +77,10 @@ function instrumentServer(project, cli) {
  * @returns {Promise}
  */
 function testServer(project, cli) {
+
   return new Promise((resolve, reject) => {
+
+    cli.log('Testing server');
 
     const config = {
       source: [
@@ -93,8 +120,31 @@ function testServer(project, cli) {
   });
 }
 
-function remapCoverage(project, cli) {
+function testBrowser(project, cli) {
+
   return new Promise((resolve, reject) => {
+
+    cli.log('Testing browser');
+
+    new KarmaServer({
+      configFile: path.resolve(__dirname, '../..', 'browser/karma.conf.js'),
+      basePath: project.basePath,
+      singleRun: true,
+    }, () => {
+      cli.log('Test complete');
+      resolve();
+    }).start();
+
+  });
+
+}
+
+function remapCoverage(project, cli) {
+
+  return new Promise((resolve, reject) => {
+
+    cli.log('Remapping coverage');
+
     const config = {
       source: [
         project.resolvePath('./coverage/browser/js/coverage-final.json'),

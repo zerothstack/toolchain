@@ -520,7 +520,7 @@ class UbiquitsProject {
       tasks: ['build:server']
     }), ['build:server']);
 
-    /**/this.registerTask('test:browser', 'test browser', (done) => {
+    /*!*/this.registerTask('test:browser', 'test browser', (done) => {
 
       new KarmaServer({
         configFile: __dirname + '/browser/karma.conf.js',

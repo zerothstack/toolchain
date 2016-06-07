@@ -1,7 +1,8 @@
-var webpack = require('webpack');
-var HtmlWebpackPlugin = require('html-webpack-plugin');
-var ExtractTextPlugin = require('extract-text-webpack-plugin');
-var helpers = require('./helpers');
+const webpack           = require('webpack');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const ExtractTextPlugin = require('extract-text-webpack-plugin');
+const helpers           = require('./helpers');
+const path              = require('path');
 
 module.exports = {
   // @todo refactor to use paths defined in tasks.js (class UbiquitsProject)
@@ -23,9 +24,8 @@ module.exports = {
       "node_loaders",
       "node_modules",
       //make sure to scan the toolchains packages if npm does not hoist them to be a flat tree
-      // require.resolve('@ubiquits/toolchain/package.json').replace('package.json', 'node_modules')
-      __dirname + '/node_modules'
-    ],
+      path.resolve(__dirname, '..', 'node_modules')
+    ]
   },
 
   module: {

@@ -49,7 +49,9 @@ function clean(project, cli, dir) {
 
     let directory;
 
-    if (dir == 'all') {
+    if (_.isArray(dir)){
+      directory = dir.map((key) => project.paths.destination[key]);
+    } else if (dir == 'all') {
       directory = options.map((key) => project.paths.destination[key]);
     } else {
       directory = project.paths.destination[dir];
