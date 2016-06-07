@@ -1,44 +1,19 @@
 'use strict';
 
-const path           = require('path');
-const _              = require('lodash');
-const gulp           = require('gulp-help')(require('gulp'));
-const rimraf         = require('gulp-rimraf');
-const tslint         = require('gulp-tslint');
-const istanbul       = require('gulp-istanbul');
-const sourcemaps     = require('gulp-sourcemaps');
-const typescript     = require('gulp-typescript');
-const merge2         = require('merge2');
-const jasmine        = require('gulp-jasmine');
-const SpecReporter   = require('jasmine-spec-reporter');
-const remapIstanbul  = require('remap-istanbul/lib/gulpRemapIstanbul');
-const fs             = require('fs');
-const merge          = require('gulp-merge-json');
-const nodemon        = require('nodemon');
-const gulpWebpack    = require('webpack-stream');
-const gutil          = require('gulp-util');
-const KarmaServer    = require('karma').Server;
-const prettyTime     = require('pretty-hrtime');
-const chalk          = require('chalk');
-const runSequence    = require('run-sequence');
-const tap            = require('gulp-tap');
-const cp             = require('child_process');
-const coveralls      = require('coveralls');
-const metalsmithTask = require('./docs/metalsmith');
-const typedoc        = require('gulp-typedoc');
-const vfs            = require('vinyl-fs');
-const git            = require('nodegit');
-const filesize       = require('filesize');
-const {execSync}       = require('child_process');
+const path  = require('path');
+const _     = require('lodash');
+const gulp  = require('gulp');
+const fs    = require('fs');
+const chalk = require('chalk');
 
 class UbiquitsProject {
 
-  constructor(basePath, paths) {
+  constructor(basePath) {
 
     this.gulp     = gulp;
     this.basePath = basePath;
 
-    this.paths = _.merge({
+    this.paths = {
       source: {
         base: './src',
         server: {
@@ -92,8 +67,8 @@ class UbiquitsProject {
         browser: 'dist/browser',
         docs: './dist-docs'
       }
-    }, paths);
-    
+    };
+
     this.deploymentConfig = {
       docs: {
         repo: null,
@@ -107,13 +82,41 @@ class UbiquitsProject {
 
   }
 
+  /**
+   * Configure the deployment options
+   * @param config
+   * @returns {UbiquitsProject}
+   */
+  configureDeployment(config) {
+    this.deploymentConfig = _.merge(this.deploymentConfig, config);
+    return this;
+  }
+
+  /**
+   * Configure the paths
+   * @param config
+   * @returns {UbiquitsProject}
+   */
+  configurePaths(config) {
+    this.paths = _.merge(this.paths, config);
+    return this;
+  }
+
+  /**
+   * Register a single command
+   * @param commandRegisterFn
+   * @returns {UbiquitsProject}
+   */
   registerCommand(commandRegisterFn) {
     this.commandRegistry.push(commandRegisterFn);
     return this;
   }
 
-  readTasks(){
-    var taskDirectory = path.resolve(__dirname+'/cli/tasks');
+  /**
+   * Read all the tasks from ./cli/tasks, pushing them into the command registry
+   */
+  readTasks() {
+    var taskDirectory = path.resolve(__dirname + '/cli/tasks');
 
     fs.readdirSync(taskDirectory).forEach((file) => {
       this.commandRegistry.push(require(path.resolve(taskDirectory, file)).task);
@@ -121,507 +124,32 @@ class UbiquitsProject {
 
   }
 
-  loadRegisteredCommands(vorpal){
+  /**
+   * Read tasks from the task dir then iterate over all commands,
+   * invoking them with vantage and this project instance
+   * @param vorpal
+   * @returns {UbiquitsProject}
+   */
+  loadRegisteredCommands(vantage) {
 
     this.readTasks();
 
     this.commandRegistry.forEach((commandRegisterFn) => {
-      commandRegisterFn(vorpal, this);
+      commandRegisterFn(vantage, this);
     });
-    
-    return this;
-  }
-  
-  configureDeployment(config) {
-    this.deploymentConfig = _.merge(this.deploymentConfig, config);
-    return this;
-  }
-
-  registerTask(name, help, task, dependencies) {
-    return this.gulp.task(name, help, dependencies || [], task);
-  }
-
-  clean(paths) {
-
-    return () => this.gulp.src(paths, {read: false, cwd: this.basePath})
-      .pipe(rimraf())
-  }
-
-  tslint(paths) {
-
-    return () => this.gulp.src(paths, {cwd: this.basePath})
-      .pipe(tslint())
-      .pipe(tslint.report('verbose'))
-  }
-
-  compileTs(paths) {
-
-    return () => {
-      const tsProject = typescript.createProject(paths.tsConfig);
-      let tsResult    = this.gulp.src(paths.source, {
-        cwd: this.basePath,
-        base: this.paths.source.base
-      })
-        .pipe(sourcemaps.init())
-        .pipe(typescript(tsProject));
-
-      return merge2([ // Merge the two output streams, so this task is finished when the IO of both operations are done.
-        tsResult.dts
-          .pipe(this.gulp.dest(paths.destination)),
-        tsResult.js
-          .pipe(sourcemaps.write('.', {sourceRoot: path.resolve(this.basePath, this.paths.source.base)}))
-          .pipe(this.gulp.dest(paths.destination))
-      ]);
-    }
-  }
-
-  coveralls() {
-
-    return (done) => {
-
-      let input;
-      try {
-        input = fs.readFileSync(path.resolve(this.basePath, this.paths.destination.coverage, 'summary/lcov.info'), 'utf8');
-      } catch (e) {
-        if (e.code == 'ENOENT') {
-          this.log(chalk.red(`Could not find summary coverage data at ${e.path}. Have you run "u test"?`));
-          return done();
-        }
-        throw e;
-      }
-
-      coveralls.handleInput(input, function (err) {
-        if (err) {
-          done();
-          throw err;
-        }
-        done();
-      });
-
-    };
-
-  }
-
-  instrument(paths) {
-
-    return () => this.gulp.src(paths, {cwd: this.basePath})
-    // Covering files
-      .pipe(istanbul())
-      // Force `require` to return covered files
-      .pipe(istanbul.hookRequire());
-  }
-
-  jasmine(paths) {
-
-    return () => {
-      Error.stackTraceLimit = Infinity;
-
-      require('core-js');
-      require('reflect-metadata');
-      require('zone.js/dist/zone-node');
-
-      return gulp.src(paths.source, {cwd: this.basePath})
-        .pipe(tap((file) => {
-          this.log(chalk.blue('[jasmine]'), chalk.cyan('loading path:', file.path));
-        }))
-        .pipe(jasmine({
-            reporter: new SpecReporter({
-              displayFailuresSummary: false
-            })
-          })
-        )
-        // Creating the reports after tests ran
-        .pipe(istanbul.writeReports({
-          dir: paths.coverage,
-          reporters: ['json']
-        }));
-
-    }
-
-  }
-
-  remapCoverage(paths) {
-
-    return () => {
-
-      return gulp.src(paths.source, {cwd: this.basePath})
-        .pipe(merge('summary.json'))
-        .pipe(remapIstanbul({
-          reports: {
-            'json': this.resolvePath('./coverage/summary/coverage.json'),
-            'html': this.resolvePath('./coverage/summary/html-report'),
-            'text': this.resolvePath('./coverage/summary/text-summary', true),
-            'lcovonly': this.resolvePath('./coverage/summary/lcov.info')
-          }
-        })).on('end', () => {
-          this.log(fs.readFileSync(this.resolvePath('./coverage/summary/text-summary')).toString());
-        });
-    }
-
-  }
-
-  nodemon(config) {
-
-    return () => {
-
-      const runner = nodemon({
-        script: config.entryPoint,
-        'ext': 'js json ts',
-        watch: [
-          this.resolvePath('src/server'),
-          this.resolvePath('src/common'),
-        ],
-        nodeArgs: [
-          // ad-hoc debugging (doesn't allow debugging of bootstrap, but app will run with debugger off)
-          '--debug=5858'
-          // explicit debugging (app won't start until remote debugger connects)
-          // '--debug-brk=5858'
-        ],
-        env: {
-          'NODE_ENV': 'development',
-          'NODEMON_ENTRYPOINT': this.resolvePath('./lib/server/server/main.js')
-        },
-        verbose: true
-      });
-
-      runner.on('change', () => {
-        this.runSync(config.tasks);
-      });
-
-      // Forward log messages and stdin
-      runner.on('log', (log) => {
-        if (~log.message.indexOf('files triggering change check')) {
-          runner.emit('change');
-        }
-        this.log(chalk.blue('[nodemon]'), chalk.yellow(log.message));
-      });
-    }
-
-  }
-
-  resolvePath(pathString, relative) {
-    const normalized = path.normalize(this.basePath + '/' + pathString);
-    if (!relative) {
-      return normalized;
-    }
-    return path.relative(this.basePath, normalized);
-  }
-
-  webpack(config) {
-
-    return () => {
-
-      const webpackConfig = require(config.webpackPath);
-
-      webpackConfig.progress = true;
-
-      return gulp.src('.')
-        .pipe(gulpWebpack(webpackConfig, null, (err, stats) => {
-          if (err) {
-            throw new gutil.PluginError("webpack", err);
-          }
-          this.log("[webpack]", stats.toString({
-            chunkModules: false,
-            colors: gutil.colors.supportsColor,
-          }));
-        }))
-        .pipe(gulp.dest(config.destination));
-    }
-
-  }
-
-  metalsmith(task) {
-
-    return (done) => {
-      metalsmithTask.run(metalsmithTask.config(task, this.paths.source.docs), path.resolve(this.basePath, this.paths.source.docs.base), path.resolve(this.basePath, this.paths.destination.docs), () => {
-
-        this.log('copying assets');
-
-        vfs.src('docs/assets/**/*', {cwd: __dirname})
-          .pipe(vfs.dest(this.paths.destination.docs + '/assets', {overwrite: false}))
-          .on('end', () => {
-            done();
-          });
-      });
-    }
-
-  }
-
-  typedoc() {
-
-    return () => {
-
-      const config = _.merge(require(this.paths.source.all.tsConfig).compilerOptions, {
-        // TypeScript options (see typescript docs)
-        // module: "commonjs",
-        // target: "es5",
-        // includeDeclarations: true,
-
-        // Output options (see typedoc docs)
-        out: this.paths.destination.docs + '/typedoc',
-        // json: this.paths.destination.docs + '/api.json',
-
-        // TypeDoc options (see typedoc docs)
-        // name: "my-project",
-        readme: 'none',
-        theme: __dirname + "/docs/api",
-        // plugins: ["my", "plugins"],
-        // ignoreCompilerErrors: false,
-        version: true,
-      });
-
-      return this.gulp
-        .src([].concat(this.paths.source.all.ts, this.paths.source.all.definitions))
-        .pipe(typedoc(_.omit(config, [
-          'sourceMap',
-          'removeComments',
-          'declaration',
-        ])));
-    }
-
-  }
-
-  gitDeploy(config) {
-
-    return (done) => {
-
-      const dir     = path.resolve(this.basePath, config.dir);
-      const pkg     = require(this.basePath + '/package.json');
-      const repoUrl = pkg.repository.url.split(/\.git$|^git\+/).filter(p=>!!p).pop();
-
-      let index, baseRepository, repository, author, commit;
-
-      git.Repository.open(this.basePath)
-        .then((repo) => {
-          baseRepository = repo;
-          this.log(`finding last commit at ${this.basePath}`);
-          return repo.getHeadCommit();
-        })
-        .then((c) => {
-          commit = c;
-          author = commit.author();
-          this.log(`Found commit: ${author.name()} - ${commit.message()}`);
-        })
-        .then(() => {
-          this.log(`Initializing repo at ${dir}`);
-          return git.Repository.init(dir, 0);
-        })
-        .then((repo) => {
-          repository = repo;
-          this.log(`refreshing index`);
-          return repo.refreshIndex();
-        })
-        .then((idx) => {
-          index = idx;
-          this.log(`adding files`);
-          return index.addAll();
-        })
-        .then(() => {
-
-          const totalFileSize = index.entries().reduce((sum, file) => sum + file.fileSize, 0);
-
-          this.log(`Added ${index.entryCount()} files totalling ${filesize(totalFileSize)}`);
-
-          this.log(`writing tree`);
-          return index.writeTree();
-        })
-        .then((oid) => {
-          this.log(`committing`);
-          return repository.createCommit("HEAD", author, author, `Docs deploy: | ${commit.message()} - ${repoUrl}/commit/${commit.id()}`, oid, []);
-        })
-        .then(() => {
-          if (!!config.repo){
-            this.log(`creating configure repo remote`);
-            return git.Remote.create(repository, config.remote, config.repo);
-          }
-
-          this.log(`retrieving remote url from parent repo`);
-          return git.Remote.lookup(baseRepository, config.remote)
-            .then((remote) => {
-              this.log(`found remote url ${remote.url()}`);
-
-              if (remote.name() == 'origin' && config.branch == 'master'){
-                throw new Error(`refusing to set remote to root origin and branch to master. You probably want to configure brance gh-pages or a different repo`);
-              }
-
-              return git.Remote.create(repository, remote.name(), remote.url());
-            });
-        })
-        .then((remote) => {
-          this.log(`added remote: ${remote.name()} ${remote.url()}`);
-          this.log(`pushing`);
-
-          return remote.push([`+refs/heads/master:refs/heads/${config.branch}`], {
-            callbacks: {
-              certificateCheck: () => 1,
-              credentials: (url, userName) => {
-                this.log(`getting creds from agent url:${url} username:${userName}`);
-                return git.Cred.sshKeyFromAgent(userName);
-              },
-              transferProgress: (progress) => {
-                this.log('progress: ', progress)
-              }
-            }
-          });
-        })
-        .catch((e) => {
-          this.log(e);
-        })
-        .then(() => {
-          this.log(`Push complete.`);
-          done();
-        })
-
-    }
-
-  }
-
-  registerDefaultTasks() {
-
-    /*!*/this.registerTask('clean:lib', 'removes the lib directory', this.clean(this.paths.destination.lib));
-    /*!*/this.registerTask('clean:coverage', 'removes the coverage directory', this.clean(this.paths.destination.coverage));
-    /*!*/this.registerTask('clean:dist', 'removes the dist directory', this.clean(this.paths.destination.dist));
-
-    /*!*/this.registerTask('clean', 'lib & coverage directories', null, ['clean:lib', 'clean:coverage', 'clean:dist']);
-
-    /*!*/this.registerTask('tslint', 'lint files', this.tslint(this.paths.source.server.ts));
-
-    /*!*/this.registerTask('build:server', 'compile API files', this.compileTs({
-      source: [].concat(this.paths.source.server.ts, this.paths.source.server.definitions),
-      destination: this.paths.destination.server,
-      tsConfig: this.paths.source.all.tsConfig
-    }), ['clean:lib']);
-
-    /*!*/this.registerTask('instrument:server', 'instrument server files', this.instrument(this.paths.destination.server + '/**/*.js'));
-
-    /*!*/this.registerTask('test:server', 'run server tests', (callback) => {
-      runSequence('build:server', 'instrument:server', 'jasmine:server', callback);
-    });
-
-    /*!*/this.registerTask('test', 'run all tests', (callback) => {
-      runSequence('test:server', 'test:browser', 'coverage:remap', callback);
-    }, ['clean']);
-
-    /*!*/this.registerTask('jasmine:server', 'run server spec files', this.jasmine({
-      source: [this.paths.destination.server + '/**/*.js', '!' + this.paths.destination.server + '/**/bootstrap.js'],
-      coverage: this.paths.destination.coverage + '/server/js'
-    }));
-
-    /*!*/this.registerTask('coverage:remap', 'remap coverage files to typescript sources', this.remapCoverage({
-      source: [
-        this.resolvePath('./coverage/browser/js/coverage-final.json'),
-        this.resolvePath('./coverage/server/js/coverage-final.json'),
-      ],
-      coverage: this.paths.destination.coverage
-    }));
-
-    /*!*/this.registerTask('watch', 'watch all files with nodemon', this.nodemon({
-      entryPoint: __dirname + '/server/localhost.js',
-      tasks: ['build:server']
-    }), ['build:server']);
-
-    /*!*/this.registerTask('test:browser', 'test browser', (done) => {
-
-      new KarmaServer({
-        configFile: __dirname + '/browser/karma.conf.js',
-        basePath: this.basePath,
-        singleRun: true,
-      }, done).start();
-    });
-
-    /*!*/this.registerTask('compile:browser', 'compile browser', this.webpack({
-      webpackPath: './browser/webpack.prod.js',
-      destination: this.paths.destination.browser
-    }), ['clean:dist']);
-
-    /*!*/this.registerTask('build', 'build files', this.compileTs({
-      source: [].concat(this.paths.source.all.ts, this.paths.source.all.definitions),
-      destination: this.paths.destination.lib,
-      tsConfig: this.paths.source.all.tsConfig
-    }), ['clean:lib']);
-
-    /*!*/this.registerTask('compile', 'compile all files', null, ['compile:browser', 'build:server']);
-
-    /*!*/this.registerTask('coveralls', 'send code coverage data to coveralls', this.coveralls());
-
-    /*!*/this.registerTask('doc:watch', 'run documentation watcher', this.metalsmith('watch'));
-    /*!*/this.registerTask('doc:build', 'build documentation', this.metalsmith('build'));
-    /*!*/this.registerTask('doc:api', 'build ts api documentation', this.typedoc());
-    /*!*/this.registerTask('doc:deploy', 'deploy documentation documentation', this.gitDeploy(this.deploymentConfig.docs));
 
     return this;
   }
 
-  start(args) {
-    this.logEvents(this.gulp);
-    this.gulp.start.apply(this.gulp, args);
-  }
-
-  runSync(tasks) {
-    this.log(chalk.blue(`Running tasks synchronously: [${tasks.join(', ')}]`));
-    cp.spawnSync('u', tasks, {stdio: [0, 1, 2]});
-  }
-
-  logEvents(gulpInst) {
-
-    gulpInst.on('task_start', (e) => {
-      this.log('Starting', '\'' + chalk.cyan(e.task) + '\'...');
-    });
-
-    gulpInst.on('task_stop', (e) => {
-      var time = prettyTime(e.hrDuration);
-      this.log(
-        'Finished', '\'' + chalk.cyan(e.task) + '\'',
-        'after', chalk.magenta(time)
-      );
-    });
-
-    gulpInst.on('task_err', (e) => {
-      var msg  = this.formatError(e);
-      var time = prettyTime(e.hrDuration);
-      this.log(
-        '\'' + chalk.cyan(e.task) + '\'',
-        chalk.red('errored after'),
-        chalk.magenta(time)
-      );
-      this.log(msg);
-    });
-
-    gulpInst.on('task_not_found', (err) => {
-      this.log(
-        chalk.red('Task \'' + err.task + '\' is not configured in your ubiquits project')
-      );
-      this.log('Please check the documentation for proper ubiquits.js project config');
-      process.exit(1);
-    });
-  }
-
+  /**
+   * Extends gutil.log with [project] prefix
+   */
   log() {
-    
-    const taskname = this.gulp.seq.slice(-1)[0];
-    const task = chalk.white('['+chalk.cyan(taskname)+']');
-    
+
+    const task = chalk.white('[project]');
+
     Array.prototype.unshift.call(arguments, task);
     gutil.log.apply(this, arguments);
-  }
-
-  formatError(e) {
-    if (!e.err) {
-      return e.message;
-    }
-
-    // PluginError
-    if (typeof e.err.showStack === 'boolean') {
-      return e.err.toString();
-    }
-
-    // Normal error
-    if (e.err.stack) {
-      return e.err.stack;
-    }
-
-    // Unknown (string, number, etc.)
-    return new Error(String(e.err)).stack;
   }
 
 }

@@ -32,13 +32,6 @@ vantage
   });
 
 vantage
-  .command('foo', 'Outputs "bar".')
-  .action(function (args, callback) {
-    this.log('bar');
-    callback();
-  });
-
-vantage
   .mode('sh', 'Use parent shell')
   .alias('$')
   .action(function (args, callback) {
