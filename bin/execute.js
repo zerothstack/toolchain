@@ -1,11 +1,13 @@
 #! /usr/bin/env node
 
 const vantage = require('@xiphiaz/vantage')();
-const banner  = require('../cli/banner.js');
 const path    = require('path');
+const fs      = require('fs');
 const chalk   = require('chalk');
-const {UbiquitsProject} = require('../project');
 const spawn   = require('child_process').spawn;
+
+const {UbiquitsProject} = require('../project');
+const banner = require('../cli/banner.js');
 
 const originalLog = vantage.ui.log;
 vantage.ui.log    = function (...args) {
@@ -37,8 +39,8 @@ vantage
   .action(function (args, callback) {
 
     const argArray = args.split(' ');
-    const cmd = spawn(argArray.shift(), argArray, {
-      stdio: [0,1,2]
+    const cmd      = spawn(argArray.shift(), argArray, {
+      stdio: [0, 1, 2]
     });
 
     cmd.on('close', (code) => {
@@ -64,7 +66,7 @@ try {
   project     = require(process.cwd() + '/ubiquits.js');
   defaultOnly = false
 } catch (e) {
-  project = new UbiquitsProject(path.resolve(__dirname, '..'));
+  project = new UbiquitsProject(process.cwd());
 }
 
 project.loadRegisteredCommands(vantage);
@@ -76,8 +78,14 @@ if (process.argv.length <= 2) {
     vantage.log(chalk.bold.gray(banner(chalk.white('$ Command Line Interface'))));
   }
 
-  defaultOnly && vantage.log(chalk.yellow(`Local ubiquits.js not found, only default commands will be available`));
-  vantage.log(chalk.blue(`Loaded ${project.commandRegistry.length} commands. Type 'help' to see available commands`));
+  //check if empty directory
+  if (!fs.readdirSync(process.cwd()).length){
+    vantage.exec('init -c');
+  } else {
+    defaultOnly && vantage.log(chalk.yellow(`Local ubiquits.js not found, only default commands will be available`));
+    vantage.log(chalk.blue(`Loaded ${project.commandRegistry.length} commands. Type 'help' to see available commands`));
+  }
+
 
 } else {
   vantage.parse(process.argv);

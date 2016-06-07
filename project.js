@@ -125,6 +125,20 @@ class UbiquitsProject {
   }
 
   /**
+   * Resolve a path relative to the base
+   * @param pathString
+   * @param relative
+   * @returns {string}
+   */
+  resolvePath(pathString, relative) {
+    const normalized = path.normalize(this.basePath + '/' + pathString);
+    if (!relative) {
+      return normalized;
+    }
+    return path.relative(this.basePath, normalized);
+  }
+
+  /**
    * Read tasks from the task dir then iterate over all commands,
    * invoking them with vantage and this project instance
    * @param vorpal

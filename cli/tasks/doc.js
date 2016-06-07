@@ -7,6 +7,7 @@ function task(cli, project) {
   cli.command('doc <task>', 'Build documentation files')
     .action(function (args, callback) {
 
+      // @todo add watch stop functionality
       return buildDocs(project, this, args.task);
     });
 
