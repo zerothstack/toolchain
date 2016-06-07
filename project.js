@@ -498,7 +498,7 @@ class UbiquitsProject {
       runSequence('build:server', 'instrument:server', 'jasmine:server', callback);
     });
 
-    /**/this.registerTask('test', 'run all tests', (callback) => {
+    /*!*/this.registerTask('test', 'run all tests', (callback) => {
       runSequence('test:server', 'test:browser', 'coverage:remap', callback);
     }, ['clean']);
 
@@ -529,25 +529,25 @@ class UbiquitsProject {
       }, done).start();
     });
 
-    /**/this.registerTask('compile:browser', 'compile browser', this.webpack({
+    /*!*/this.registerTask('compile:browser', 'compile browser', this.webpack({
       webpackPath: './browser/webpack.prod.js',
       destination: this.paths.destination.browser
     }), ['clean:dist']);
 
-    /**/this.registerTask('build', 'build files', this.compileTs({
+    /*!*/this.registerTask('build', 'build files', this.compileTs({
       source: [].concat(this.paths.source.all.ts, this.paths.source.all.definitions),
       destination: this.paths.destination.lib,
       tsConfig: this.paths.source.all.tsConfig
     }), ['clean:lib']);
 
-    /**/this.registerTask('compile', 'compile all files', null, ['compile:browser', 'build:server']);
+    /*!*/this.registerTask('compile', 'compile all files', null, ['compile:browser', 'build:server']);
 
-    /**/this.registerTask('coveralls', 'send code coverage data to coveralls', this.coveralls());
+    /*!*/this.registerTask('coveralls', 'send code coverage data to coveralls', this.coveralls());
 
     /*!*/this.registerTask('doc:watch', 'run documentation watcher', this.metalsmith('watch'));
     /*!*/this.registerTask('doc:build', 'build documentation', this.metalsmith('build'));
-    /**/this.registerTask('doc:api', 'build ts api documentation', this.typedoc());
-    /**/this.registerTask('doc:deploy', 'deploy documentation documentation', this.gitDeploy(this.deploymentConfig.docs));
+    /*!*/this.registerTask('doc:api', 'build ts api documentation', this.typedoc());
+    /*!*/this.registerTask('doc:deploy', 'deploy documentation documentation', this.gitDeploy(this.deploymentConfig.docs));
 
     return this;
   }

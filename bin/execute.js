@@ -44,14 +44,8 @@ vantage
   .action(function (args, callback) {
 
     const argArray = args.split(' ');
-    const cmd = spawn(argArray.shift(), argArray);
-
-    cmd.stdout.on('data', (data) => {
-      this.log(`stdout: ${data}`);
-    });
-
-    cmd.stderr.on('data', (data) => {
-      this.log(`stderr: ${data}`);
+    const cmd = spawn(argArray.shift(), argArray, {
+      stdio: [0,1,2]
     });
 
     cmd.on('close', (code) => {
