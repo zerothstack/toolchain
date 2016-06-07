@@ -3,12 +3,15 @@ const typescript = require('gulp-typescript');
 const merge2     = require('merge2');
 const path       = require('path');
 
+const {clean} = require('./clean');
+
 function task(cli, project) {
 
   cli.command('build [environment]', 'Builds typescript files')
     .action(function (args, callback) {
 
-      return build(project, this, args.environment);
+      return clean(project, this, ['lib'])
+        .then(() => build(project, this, args.environment));
     });
 
 }
@@ -16,7 +19,7 @@ function task(cli, project) {
 function build(project, cli, context) {
   return new Promise((resolve, reject) => {
 
-    let config = {};
+    let config      = {};
     const allConfig = {
       source: [].concat(project.paths.source.all.ts, project.paths.source.all.definitions),
       destination: project.paths.destination.lib,
@@ -38,7 +41,7 @@ function build(project, cli, context) {
         config = allConfig;
     }
 
-    cli.log('Building ts');
+    cli.log(`Building ts for [${context || 'all'}]`);
 
     const tsProject = typescript.createProject(config.tsConfig);
     const tsResult  = project.gulp.src(config.source, {

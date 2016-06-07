@@ -1,5 +1,3 @@
-const vantage = require('vantage')();
-
 function task(cli, project) {
 
   cli.command('cli', 'Jumps into runtime cli')
