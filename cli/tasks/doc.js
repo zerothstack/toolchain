@@ -34,4 +34,4 @@ function buildDocs(project, cli, task) {
 
 }
 
-module.exports = {task};
+module.exports = {task, buildDocs};
