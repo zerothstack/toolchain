@@ -17,23 +17,23 @@ function task(cli, project) {
 
       const gitConf = git.Config.openDefault();
 
-      let boilerplateClonePromise = null;
+      let quickstartClonePromise = null;
       let configResponses         = null;
       let repo                    = null;
 
       return confirmInit(this, !!args.options.c, emptyDir)
         .then((res) => {
-          boilerplateClonePromise = cloneBoilerplate(this);
+          quickstartClonePromise = cloneQuickstart(this);
           // we are explicitly not returning the promise here so the clone is non blocking
         })
         .then(() => getProjectConfig(this, gitConf))
         .then((responses) => {
           configResponses = responses;
-          if (!repo){ //cloning boilerplate is not complete
-            this.log('Standby while the boilerplate downloads...');
+          if (!repo){ //cloning quickstart is not complete
+            this.log('Standby while the quickstart files download...');
           }
           //at this point we need the repo to be finished cloning
-          return boilerplateClonePromise
+          return quickstartClonePromise
             .then(r => repo = r); //extract the repo var for later
         })
         .then(() => {
@@ -124,17 +124,17 @@ function commitChanges(cli, repo, commitMessage) {
 }
 
 /**
- * Clone the boilerplate into the current working directory
+ * Clone the quickstart into the current working directory
  * @param cli
  * @returns {*}
  */
-function cloneBoilerplate(cli) {
-  cli.log('cloning boilerplate...');
+function cloneQuickstart(cli) {
+  cli.log('cloning quickstart...');
   const cwd     = process.cwd();
-  const tmpDest = cwd + '/_tmp_boilerplate';
+  const tmpDest = cwd + '/_tmp_quickstart';
 
   fs.emptyDirSync(tmpDest);
-  return git.Clone("https://github.com/ubiquits/ubiquits.git", tmpDest, {
+  return git.Clone("https://github.com/ubiquits/quickstart.git", tmpDest, {
     fetchOpts: {
       callbacks: {
         // github will fail cert check on some OSX machines this overrides that check
