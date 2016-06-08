@@ -12,11 +12,16 @@ const banner = require('../cli/banner.js');
 const originalLog = vantage.ui.log;
 vantage.ui.log    = function (...args) {
 
-  const cmd = this.parent._command;
+  //sometimes there is no parent, like when executing from parent shell
+  if (this.parent){
 
-  if (cmd) {
-    const task = chalk.white('[' + chalk.cyan(cmd.command.split(' ').shift()) + ']');
-    args.unshift(task);
+    const cmd = this.parent._command;
+
+    if (cmd) {
+      const task = chalk.white('[' + chalk.cyan(cmd.command.split(' ').shift()) + ']');
+      args.unshift(task);
+    }
+
   }
 
   originalLog.apply(this, args);
