@@ -9,11 +9,11 @@ const spawn   = require('child_process').spawn;
 const {UbiquitsProject} = require('../project');
 const banner = require('../cli/banner.js');
 
-const originalLog = vantage.ui.log;
-vantage.ui.log    = function (...args) {
+const originalSessionLog = vantage.ui.log;
+vantage.ui.log           = function (...args) {
 
   //sometimes there is no parent, like when executing from parent shell
-  if (this.parent){
+  if (this.parent) {
 
     const cmd = this.parent._command;
 
@@ -23,6 +23,14 @@ vantage.ui.log    = function (...args) {
     }
 
   }
+
+  originalSessionLog.apply(this, args);
+};
+
+const originalLog = vantage.log;
+vantage.log       = function (...args) {
+
+  args.unshift(chalk.white('[' + chalk.cyan('ubiquits') + ']'));
 
   originalLog.apply(this, args);
 };
@@ -71,6 +79,11 @@ try {
   project     = require(process.cwd() + '/ubiquits.js');
   defaultOnly = false
 } catch (e) {
+  if (e.code !== 'MODULE_NOT_FOUND') {
+    vantage.log(chalk.red('Error found in your ubiquits.js file:'));
+    throw e;
+  }
+  //create local project as fallback
   project = new UbiquitsProject(process.cwd());
 }
 
@@ -84,13 +97,12 @@ if (process.argv.length <= 2) {
   }
 
   //check if empty directory
-  if (!fs.readdirSync(process.cwd()).length){
+  if (!fs.readdirSync(process.cwd()).length) {
     vantage.exec('init -c');
   } else {
     defaultOnly && vantage.log(chalk.yellow(`Local ubiquits.js not found, only default commands will be available`));
     vantage.log(chalk.blue(`Loaded ${project.commandRegistry.length} commands. Type 'help' to see available commands`));
   }
-
 
 } else {
   vantage.parse(process.argv);
