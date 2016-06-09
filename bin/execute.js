@@ -89,6 +89,8 @@ try {
 
 project.loadRegisteredCommands(vantage);
 
+vantage.command('wot m8').hidden().action(function(){this.log(`'R U 'AVIN A GIGGLE, M8?'`)});
+
 if (process.argv.length <= 2) {
 
   vantage.show();
