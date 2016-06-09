@@ -2,7 +2,7 @@ const Metalsmith         = require('metalsmith');
 const markdown           = require('metalsmith-markdown');
 const layouts            = require('@xiphiaz/metalsmith-layouts');
 const permalinks         = require('metalsmith-permalinks');
-const serve              = require('metalsmith-serve');
+const serve              = require('@xiphiaz/metalsmith-serve');
 const watch              = require('@xiphiaz/metalsmith-watch');
 const prism              = require('metalsmith-prism');
 const collections        = require('metalsmith-collections');
@@ -34,10 +34,10 @@ handlebars.registerHelper('ifIncludes', (a, b, str) => {
 handlebars.registerHelper('packageAuthor', (package) => {
   let author = {};
 
-  if (_.isObject(package.author)){
+  if (_.isObject(package.author)) {
     author = package.author;
   } else {
-    [, author.name,, author.email,, author.url] = package.author.split(/^(.*?)\s*(\<(.*)\>)?\s*(\((.*)\))?$/);
+    [, author.name, , author.email, , author.url] = package.author.split(/^(.*?)\s*(\<(.*)\>)?\s*(\((.*)\))?$/);
   }
 
   return `<a class="brown-text text-lighten-3" href="${author.url}">${author.name}</a>`;
@@ -53,20 +53,55 @@ handlebars.registerHelper('ifHasSubnav', function (section, allCollections, opti
   return options.inverse(this);
 });
 
-function run(metalsmith, source, destination, callback) {
-  console.log('source, destination', source, destination);
+function run(metalsmith, doWatch, source, destination) {
+
   metalsmith
     .source(source)
-    .destination(destination)
-    .build(function (err, files) {
+    .destination(destination);
+
+  let serverPlugin = null;
+
+  if (doWatch) {
+
+    const livereloadPort = 35729;
+
+    serverPlugin = serve({
+      port: 8081,
+      verbose: true,
+      http_error_files: {
+        404: "/404.html"
+      }
+    });
+
+    metalsmith
+    // @todo restore watcher when it is eliminated from the serve issues
+    .use(watch({
+      paths: {
+        "${source}/**/*": true
+      },
+      livereload: livereloadPort
+    }))
+      .use(serverPlugin);
+  }
+
+
+  return new Promise((resolve, reject) => {
+
+    metalsmith.build((err, files) => {
       if (err) {
         throw err;
       }
-      callback();
+
+      if (serverPlugin) {
+        return resolve(serverPlugin.shutdown);
+      }
+      return resolve();
     });
+
+  });
 }
 
-function config(task, pathConfig) {
+function config(pathConfig) {
 
   let defininitions = {
     pkg: require(pathConfig.root + '/package.json'),
@@ -78,27 +113,6 @@ function config(task, pathConfig) {
       description: "Documentation for the Ubiquits framework",
     })
     .clean(true);
-
-  if (task === 'watch') {
-
-    const livereloadPort = 35729;
-    defininitions.livereloadPort = livereloadPort;
-
-    metalsmith
-      .use(watch({
-        paths: {
-          "${source}/**/*": true
-        },
-        livereload: livereloadPort
-      }))
-      .use(serve({
-        port: 8081,
-        verbose: true,
-        http_error_files: {
-          404: "/404.html"
-        }
-      }));
-  }
 
   return metalsmith
     .use(define(defininitions))
@@ -128,6 +142,7 @@ function config(task, pathConfig) {
         requires.handlebars = handlebars;
       }
     }));
+
 }
 
 module.exports = {run, config};

@@ -7,25 +7,6 @@ const _       = require('lodash');
 const {build} = require('./build');
 const {clean} = require('./clean');
 
-function validateArgs(args, runnerRef, options) {
-  switch (args.command) {
-    case 'stop':
-      if (!runnerRef) {
-        return `Watcher is not running, run 'watch' or 'watch start' to start it`;
-      }
-      return true;
-    case undefined:
-    case 'run':
-    case 'start':
-      if (!!runnerRef) {
-        return `Watcher is already running, run 'watch stop' to cancel`;
-      }
-      return true;
-    default:
-      return `Unrecognised option ${args.command}, should be one of [${options.join(', ')}]`;
-  }
-}
-
 function task(cli, project) {
 
   let runnerRef;
@@ -33,13 +14,26 @@ function task(cli, project) {
 
   cli.command('watch [command]', 'Start watcher')
     .alias('w')
-    .action(function (args, callback) {
+    .validate((args) => {
 
-      const validate = validateArgs(args, runnerRef, options);
-      if (validate !== true) {
-        this.log(chalk.red(validate));
-        return callback();
+      switch (args.command) {
+        case 'stop':
+          if (!runnerRef) {
+            return `Watcher is not running, run 'watch' or 'watch start' to start it`;
+          }
+          return true;
+        case undefined:
+        case 'run':
+        case 'start':
+          if (!!runnerRef) {
+            return `Watcher is already running, run 'watch stop' to cancel`;
+          }
+          return true;
+        default:
+          return `Unrecognised option ${args.command}, should be one of [${options.join(', ')}]`;
       }
+    })
+    .action(function (args, callback) {
 
       switch (args.command) {
         case 'stop':
