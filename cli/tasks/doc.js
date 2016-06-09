@@ -59,11 +59,13 @@ function task(cli, project) {
 
 function buildDocs(project, cli, task) {
 
-  const config = metalsmithTask.config(project.paths.source.docs);
+  const isWatch = task === 'watch';
+
+  const config = metalsmithTask.config(project.paths.source.docs, isWatch);
   const source = path.resolve(project.basePath, project.paths.source.docs.base);
   const dest   = path.resolve(project.basePath, project.paths.destination.docs);
 
-  return metalsmithTask.run(config, task === 'watch', source, dest)
+  return metalsmithTask.run(config, isWatch, source, dest)
     .then((shutdown) => {
 
       return new Promise((resolve, reject) => {

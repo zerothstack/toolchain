@@ -53,6 +53,8 @@ handlebars.registerHelper('ifHasSubnav', function (section, allCollections, opti
   return options.inverse(this);
 });
 
+const livereloadPort = 35729;
+
 function run(metalsmith, doWatch, source, destination) {
 
   metalsmith
@@ -64,7 +66,7 @@ function run(metalsmith, doWatch, source, destination) {
 
   if (doWatch) {
 
-    const livereloadPort = 35729;
+
 
     serverPlugin = serve({
       port: 8081,
@@ -99,7 +101,7 @@ function run(metalsmith, doWatch, source, destination) {
           watchPlugin.close();
           serverPlugin.shutdown(cb);
         };
-        
+
         return resolve(shutdown);
       }
       return resolve();
@@ -108,11 +110,15 @@ function run(metalsmith, doWatch, source, destination) {
   });
 }
 
-function config(pathConfig) {
+function config(pathConfig, watching) {
 
   let defininitions = {
     pkg: require(pathConfig.root + '/package.json'),
   };
+
+  if (watching){
+    defininitions.livereloadPort = livereloadPort;
+  }
 
   let metalsmith = Metalsmith(pathConfig.base)
     .metadata({
