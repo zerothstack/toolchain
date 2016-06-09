@@ -9,7 +9,7 @@ const collections        = require('metalsmith-collections');
 const define             = require('metalsmith-define');
 const dateFormatter      = require('metalsmith-date-formatter');
 const headingsidentifier = require('metalsmith-headings-identifier');
-const headings           = require('metalsmith-headings');
+const headings           = require('@xiphiaz/metalsmith-headings');
 const handlebars         = require('handlebars');
 const util               = require('util');
 const _                  = require('lodash');
@@ -23,24 +23,31 @@ handlebars.registerHelper('debug', (optionalValue) => {
   return util.inspect(this, {depth: 10});
 });
 
-handlebars.registerHelper('ifEqual', (a, b, str) => {
-  return _.isEqual(a, b) ? str : null;
+handlebars.registerHelper('ifEqual', function (a, b, opt) {
+
+  let equal = _.isEqual(a, b);
+
+  if (_.isString(opt)) {
+    return equal ? opt : null;
+  }
+  //else block
+  return equal ? opt.fn(this) : opt.inverse(this);
 });
 
 handlebars.registerHelper('ifIncludes', (a, b, str) => {
   return _.includes(a, b) ? str : null;
 });
 
-handlebars.registerHelper('packageAuthor', (package) => {
+handlebars.registerHelper('author', (authorInput) => {
   let author = {};
 
-  if (_.isObject(package.author)) {
-    author = package.author;
+  if (_.isObject(authorInput)) {
+    author = authorInput;
   } else {
-    [, author.name, , author.email, , author.url] = package.author.split(/^(.*?)\s*(\<(.*)\>)?\s*(\((.*)\))?$/);
+    [, author.name, , author.email, , author.url] = authorInput.split(/^(.*?)\s*(\<(.*)\>)?\s*(\((.*)\))?$/);
   }
 
-  return `<a class="brown-text text-lighten-3" href="${author.url}">${author.name}</a>`;
+  return `<a class="brown-text text-lighten-3" rel="author" href="${author.url}">${author.name}</a>`;
 });
 
 handlebars.registerHelper('ifHasSubnav', function (section, allCollections, options) {
@@ -55,7 +62,7 @@ handlebars.registerHelper('ifHasSubnav', function (section, allCollections, opti
 
 const livereloadPort = 35729;
 
-function run(metalsmith, doWatch, source, destination) {
+function run(metalsmith, doWatch, source, destination, port) {
 
   metalsmith
     .source(source)
@@ -66,10 +73,8 @@ function run(metalsmith, doWatch, source, destination) {
 
   if (doWatch) {
 
-
-
     serverPlugin = serve({
-      port: 8081,
+      port: port,
       verbose: true,
       http_error_files: {
         404: "/404.html"
@@ -116,7 +121,7 @@ function config(pathConfig, watching) {
     pkg: require(pathConfig.root + '/package.json'),
   };
 
-  if (watching){
+  if (watching) {
     defininitions.livereloadPort = livereloadPort;
   }
 
@@ -129,7 +134,12 @@ function config(pathConfig, watching) {
 
   return metalsmith
     .use(define(defininitions))
-    .use(markdown({langPrefix: 'language-'}))
+    .use(markdown({
+      langPrefix: 'language-',
+      smartypants: true,
+      gfm: true,
+      tables: true
+    }))
     .use(headings({selectors: ['h2', 'h3']}))
     .use(headingsidentifier())
     .use(prism({

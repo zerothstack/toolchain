@@ -1,7 +1,6 @@
 {{> head }}
 {{> header }}
 <main>
-
     <div class="container">
         <h1>{{ title }}</h1>
 
@@ -11,6 +10,24 @@
             {{/each}}
         </ul>
 
+        {{#if pendingTask}}
+            <div class="card grey darken-3">
+
+                <div class="card-content white-text">
+                <span class="card-title">
+                    <i class="material-icons">schedule</i> This feature is pending
+                </span>
+                    <p>This page serves as a placeholder and draft of a planned feature.</p>
+                </div>
+
+                {{#ifEqual pendingTask true}}{{else}}
+                    <div class="card-action">
+                        <a href="{{pendingTask}}" target="_blank">See Github issue</a>
+                    </div>
+                {{/ifEqual}}
+            </div>
+
+        {{/if}}
         <div class="contents">{{{ contents }}}</div>
     </div>
 </main>

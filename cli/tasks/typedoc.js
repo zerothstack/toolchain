@@ -4,6 +4,7 @@ const merge2     = require('merge2');
 const path       = require('path');
 const typedoc    = require('gulp-typedoc');
 const _          = require('lodash');
+const plumber  = require('gulp-plumber');
 
 function task(cli, project) {
 
@@ -42,6 +43,7 @@ function buildTypedoc(project, cli) {
 
     project.gulp
       .src([].concat(project.paths.source.all.ts, project.paths.source.all.definitions))
+      .pipe(plumber(resolve))
       .pipe(typedoc(_.omit(config, [
         'sourceMap',
         'removeComments',

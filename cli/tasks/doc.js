@@ -4,6 +4,9 @@ const metalsmithTask = require('../../docs/metalsmith');
 
 const {clean} = require('./clean');
 
+const watchPort = 8080;
+
+
 function task(cli, project) {
 
   let shutdownCallback = null;
@@ -49,7 +52,7 @@ function task(cli, project) {
             .then((shutdown) => {
               shutdownCallback = shutdown;
               if (shutdown) {
-                cli.log(`Doc watcher started. Run 'doc stop' to stop the watch server`);
+                cli.log(`Doc watcher started at https://localhost:${watchPort}\nRun 'doc stop' to stop the watch server`);
               }
             });
       }
@@ -65,7 +68,7 @@ function buildDocs(project, cli, task) {
   const source = path.resolve(project.basePath, project.paths.source.docs.base);
   const dest   = path.resolve(project.basePath, project.paths.destination.docs);
 
-  return metalsmithTask.run(config, isWatch, source, dest)
+  return metalsmithTask.run(config, isWatch, source, dest, watchPort)
     .then((shutdown) => {
 
       return new Promise((resolve, reject) => {

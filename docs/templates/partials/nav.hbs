@@ -12,7 +12,12 @@
                             <div class="collapsible-body">
                                 <ul>
                                     {{#each collection }}
-                                        <li class="{{ifEqual ../../../path path 'active' }}"><a href="/{{ path }}">{{ title }}</a></li>
+                                        <li class="{{ifEqual ../../../path path 'active' }}{{#if pendingTask}}pending {{/if}}">
+                                            <a href="/{{ path }}">
+                                                <span>{{ title }}</span>
+                                                {{#if pendingTask}}<i class="right material-icons">schedule</i> {{/if}}
+                                            </a>
+                                        </li>
                                     {{/each}}
                                 </ul>
                             </div>
