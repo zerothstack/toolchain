@@ -8,8 +8,10 @@
     </footer>
 
 
-<!--  Scripts-->
-    <script src="http://localhost:35729/livereload.js"></script>
+    <!--  Scripts-->
+    {{#if livereloadPort}}
+    <script src="http://localhost:{{livereloadPort}}/livereload.js"></script>
+    {{/if}}
     <script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
     <script src="/assets/js/materialize.js"></script>
     <script src="/assets/js/init.js"></script>

@@ -68,6 +68,10 @@ function run(metalsmith, source, destination, callback) {
 
 function config(task, pathConfig) {
 
+  let defininitions = {
+    pkg: require(pathConfig.root + '/package.json'),
+  };
+
   let metalsmith = Metalsmith(pathConfig.base)
     .metadata({
       title: "Ubiquits",
@@ -76,12 +80,16 @@ function config(task, pathConfig) {
     .clean(true);
 
   if (task === 'watch') {
+
+    const livereloadPort = 35729;
+    defininitions.livereloadPort = livereloadPort;
+
     metalsmith
       .use(watch({
         paths: {
           "${source}/**/*": true
         },
-        livereload: true
+        livereload: livereloadPort
       }))
       .use(serve({
         port: 8081,
@@ -93,9 +101,7 @@ function config(task, pathConfig) {
   }
 
   return metalsmith
-    .use(define({
-      pkg: require(pathConfig.root + '/package.json'),
-    }))
+    .use(define(defininitions))
     .use(markdown({langPrefix: 'language-'}))
     .use(headings({selectors: ['h2', 'h3']}))
     .use(headingsidentifier())
