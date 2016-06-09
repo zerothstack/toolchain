@@ -60,6 +60,7 @@ function run(metalsmith, doWatch, source, destination) {
     .destination(destination);
 
   let serverPlugin = null;
+  let watchPlugin  = null;
 
   if (doWatch) {
 
@@ -73,17 +74,17 @@ function run(metalsmith, doWatch, source, destination) {
       }
     });
 
-    metalsmith
-    // @todo restore watcher when it is eliminated from the serve issues
-    .use(watch({
+    watchPlugin = watch({
       paths: {
         "${source}/**/*": true
       },
       livereload: livereloadPort
-    }))
+    });
+
+    metalsmith
+      .use(watchPlugin)
       .use(serverPlugin);
   }
-
 
   return new Promise((resolve, reject) => {
 
@@ -92,8 +93,14 @@ function run(metalsmith, doWatch, source, destination) {
         throw err;
       }
 
-      if (serverPlugin) {
-        return resolve(serverPlugin.shutdown);
+      if (doWatch) {
+
+        let shutdown = (cb) => {
+          watchPlugin.close();
+          serverPlugin.shutdown(cb);
+        };
+        
+        return resolve(shutdown);
       }
       return resolve();
     });
