@@ -3,7 +3,7 @@ This is the toolchain for building ubiquits projects, modules and core
 
 ## Quickstart
 ```bash
-npm install -g @ubiquits/toolchain
+npm install -g @ubiquits/toolchain && u
 ```
 
 ## Developer Guide
