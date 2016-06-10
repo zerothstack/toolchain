@@ -137,7 +137,7 @@ function config(pathConfig, meta, watching) {
     .use(markdown({
       langPrefix: 'language-',
       smartypants: true,
-      gfm: true,
+      // gfm: true,
       tables: true
     }))
     .use(headings({selectors: ['h2', 'h3']}))

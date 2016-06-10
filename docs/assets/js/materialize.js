@@ -2017,7 +2017,7 @@ $(document).ready(function(){
   var methods = {
     init : function(options) {
       var defaults = {
-        menuWidth: 240,
+        menuWidth: 245,
         edge: 'left',
         closeOnClick: false
       };
@@ -2028,7 +2028,7 @@ $(document).ready(function(){
         var menu_id = $("#"+ $this.attr('data-activates'));
 
         // Set to width
-        if (options.menuWidth != 240) {
+        if (options.menuWidth != 245) {
           menu_id.css('width', options.menuWidth);
         }
 

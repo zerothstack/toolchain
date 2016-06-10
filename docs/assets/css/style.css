@@ -53,7 +53,7 @@ footer.page-footer {
 }
 
 header, main, footer {
-  padding-left: 240px;
+  padding-left: 245px;
 }
 
 @media only screen and (max-width : 992px) {
