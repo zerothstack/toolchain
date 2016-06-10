@@ -40,6 +40,24 @@ vantage
   .catch('[words...]', 'Catches incorrect commands')
   // .allowUnknownOptions()
   .action(function (args, cb) {
+
+    //no args, just exit
+    if (!args.words) {
+      return cb();
+    }
+
+    // test if command starts with u or ubiquits,
+    // user probably doesn't realise they are already in the shell
+    if (args.words.length && ['u', 'ubiquits'].indexOf(args.words[0]) >= 0) {
+      if (args.words.length == 1){
+        return cb(chalk.red('You are already in the ubiquits shell!'));
+      }
+      let start = args.words.shift();
+      this.log(chalk.yellow(`You are already in the ubiquits shell - you don't need to prefix your commands with '${start}'`));
+      vantage.exec(args.words.join(' '));
+      return cb();
+    }
+
     this.log(chalk.red(`'${args.words.join(' ')}' is not a valid command.`));
     cb();
   });
@@ -62,7 +80,7 @@ try {
 // Load all the commands registered in the project
 project.loadRegisteredCommands(vantage);
 
-vantage.command('wot m8').hidden().action(function(){this.log(`'R U 'AVIN A GIGGLE, M8?'`)});
+vantage.command('wot m8').hidden().action(function(a, c){this.log(`'R U 'AVIN A GIGGLE, M8?'`);c()});
 
 // check if only one arg eg `u` or `ubiquits`
 if (process.argv.length <= 2) { //one arg, drop into shell

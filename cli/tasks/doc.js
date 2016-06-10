@@ -64,7 +64,7 @@ function buildDocs(project, cli, task) {
 
   const isWatch = task === 'watch';
 
-  const config = metalsmithTask.config(project.paths.source.docs, isWatch);
+  const config = metalsmithTask.config(project.paths.source.docs, project.docsConfig.meta, isWatch);
   const source = path.resolve(project.basePath, project.paths.source.docs.base);
   const dest   = path.resolve(project.basePath, project.paths.destination.docs);
 

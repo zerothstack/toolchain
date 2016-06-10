@@ -13,6 +13,12 @@ class UbiquitsProject {
     this.gulp     = gulp;
     this.basePath = basePath;
 
+    this.docsConfig = {
+      meta: {
+        gaCode: null
+      }
+    };
+
     this.paths = {
       source: {
         base: './src',
@@ -99,6 +105,16 @@ class UbiquitsProject {
    */
   configurePaths(config) {
     this.paths = _.merge(this.paths, config);
+    return this;
+  }
+
+  /**
+   * Configure Documentation options
+   * @param config
+   * @returns {UbiquitsProject}
+   */
+  configureDocs(config){
+    this.docsConfig = _.merge(this.paths, config);
     return this;
   }
 

@@ -115,11 +115,11 @@ function run(metalsmith, doWatch, source, destination, port) {
   });
 }
 
-function config(pathConfig, watching) {
+function config(pathConfig, meta, watching) {
 
-  let defininitions = {
+  let defininitions = _.merge(meta, {
     pkg: require(pathConfig.root + '/package.json'),
-  };
+  });
 
   if (watching) {
     defininitions.livereloadPort = livereloadPort;
