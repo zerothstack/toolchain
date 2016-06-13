@@ -13,6 +13,26 @@ const headings           = require('@xiphiaz/metalsmith-headings');
 const handlebars         = require('handlebars');
 const util               = require('util');
 const _                  = require('lodash');
+const marked             = require('marked');
+
+const renderer = new marked.Renderer();
+
+const original = renderer.listitem;
+renderer.listitem = function (text) {
+
+  const checkboxMatcher = /\[([x\s])\]/i;
+  const match = text.match(checkboxMatcher);
+
+  if (match){
+    text = text.replace(checkboxMatcher, (match, type) => {
+      return type == ' ' ? '&#9744' : '&#9745';
+    });
+
+    return original.call(this, text).replace('<li>', '<li class="checkbox">');
+  }
+
+  return original.call(this, text);
+};
 
 handlebars.registerHelper('debug', (optionalValue) => {
 
@@ -137,7 +157,7 @@ function config(pathConfig, meta, watching) {
     .use(markdown({
       langPrefix: 'language-',
       smartypants: true,
-      // gfm: true,
+      renderer: renderer,
       tables: true
     }))
     .use(headings({selectors: ['h2', 'h3']}))
