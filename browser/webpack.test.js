@@ -42,7 +42,8 @@ module.exports = {
         loader: 'string-replace',
         query: {
           search: '%working-dir%',
-          replace: process.cwd()
+          replace: process.cwd(),
+          flags: 'g'
         }
       }
     ],

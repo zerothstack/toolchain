@@ -18,7 +18,9 @@ require('zone.js/dist/async-test');
  * This is a hack, and should be dealt with when a better solution is devised.
  */
 var appContext = require.context('%working-dir%/src/browser', true, /\.spec\.ts/);
+var commonContext = require.context('%working-dir%/src/common', true, /\.spec\.ts/);
 appContext.keys().forEach(appContext);
+commonContext.keys().forEach(commonContext);
 
 var testing = require('@angular/core/testing');
 var browser = require('@angular/platform-browser-dynamic/testing');

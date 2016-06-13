@@ -20,7 +20,6 @@ function task(cli, project) {
     .action(function (args, callback) {
 
       return clean(project, this, ['coverage', 'lib'])
-
         .then(() => {
           let testPromiseFactories = [];
 
@@ -100,9 +99,6 @@ function testServer(project, cli) {
 
     project.gulp.src(config.source, {cwd: project.basePath})
       .pipe(plumber(reject))
-      .pipe(tap((file) => {
-        cli.log(chalk.blue('[jasmine]'), chalk.cyan('loading path:', file.path));
-      }))
       // Run specs
       .pipe(jasmine({
           verbose: true,
@@ -116,7 +112,7 @@ function testServer(project, cli) {
         dir: config.coverage,
         reporters: ['json']
       }))
-      .on('finish', resolve);
+      .on('end', resolve);
   });
 }
 
@@ -147,13 +143,16 @@ function remapCoverage(project, cli) {
 
     const config = {
       source: [
-        project.resolvePath('./coverage/browser/js/coverage-final.json'),
-        project.resolvePath('./coverage/server/js/coverage-final.json'),
+        project.resolvePath('./coverage/**/js/coverage-final.json'),
       ],
       coverage: project.paths.destination.coverage
     };
 
     project.gulp.src(config.source, {cwd: project.basePath})
+      .pipe(plumber(reject))
+      .pipe(tap((file) => {
+        cli.log(chalk.blue('[merge]'), chalk.cyan('merging coverage info:', file.path));
+      }))
       .pipe(merge('summary.json'))
       .pipe(remapIstanbul({
         reports: {
@@ -164,7 +163,7 @@ function remapCoverage(project, cli) {
         }
       }))
       .on('finish', () => {
-        this.log(fs.readFileSync(project.resolvePath('./coverage/summary/text-summary')).toString());
+        cli.log(fs.readFileSync(project.resolvePath('./coverage/summary/text-summary')).toString());
         resolve();
       });
 
