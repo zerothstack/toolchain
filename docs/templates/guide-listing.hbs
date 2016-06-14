@@ -10,11 +10,10 @@
     </div>
 
     <div class="container">
-        <ul>
-            {{#each collections.guide }}
-                <li><a href="/{{ path }}">{{ title }}</a></li>
-            {{/each}}
-        </ul>
+        {{#each collections.guide }}
+            <h3><a href="/{{ path }}">{{ title }}</a></h3>
+            <p>{{description}}</p>
+        {{/each}}
     </div>
 </main>
 
