@@ -106,12 +106,12 @@ function watchServer(project, cli) {
           cli.log('Returning control to user');
           resolve(runner);
         }
-        cli.log(chalk.green('[node]'), log);
+        cli.log(chalk.green('[server]'), log);
       });
 
       this.stderr.on('data', (chunk) => {
         let log = chunk.toString();
-        cli.log(chalk.red('[node]'), log);
+        cli.log(chalk.red('[server]'), log);
       });
 
     });

@@ -48,9 +48,7 @@ class UbiquitsProject {
         all: {
           tsConfig: this.basePath + '/tsconfig.json',
           ts: [
-            './src/browser/**/*.ts',
-            './src/common/**/*.ts',
-            './src/server/**/*.ts',
+            './src/**/*.ts'
           ],
           definitions: [
             './typings/**/*.d.ts',
