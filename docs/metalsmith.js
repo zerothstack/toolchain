@@ -158,6 +158,19 @@ function config(pathConfig, meta, watching) {
     pkg: require(pathConfig.root + '/package.json'),
     rootPath: pathConfig.root,
   });
+  
+  if (meta.social.github.star){
+    const githubMatcher = /github.com\/(.+?)\/([^#?\/]+)/;
+    const matches = defininitions.pkg.homepage.match(githubMatcher);
+    
+    if (matches){
+      meta.social.github.star = {
+        repo: matches[1],
+        user: matches[2],
+      }
+    }
+    
+  }
 
   if (watching) {
     defininitions.livereloadPort = livereloadPort;

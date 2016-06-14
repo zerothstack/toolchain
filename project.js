@@ -83,6 +83,15 @@ class UbiquitsProject {
         dir: this.paths.destination.docs
       }
     };
+    
+    this.socialConfig = {
+      github: {
+        forkMe: true,
+        star: true
+      },
+      twitter: false,
+      gitter: false
+    };
 
     this.commandRegistry = [];
 
@@ -115,6 +124,16 @@ class UbiquitsProject {
    */
   configureDocs(config){
     this.docsConfig = _.merge(this.paths, config);
+    return this;
+  }
+
+  /**
+   * Configure Social options
+   * @param config
+   * @returns {UbiquitsProject}
+   */
+  configureSocial(config){
+    this.socialConfig = _.merge(this.socialConfig, config);
     return this;
   }
 

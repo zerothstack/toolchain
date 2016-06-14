@@ -1,11 +1,11 @@
 const path           = require('path');
 const vinylFs        = require('vinyl-fs');
 const metalsmithTask = require('../../docs/metalsmith');
+const _              = require('lodash');
 
 const {clean} = require('./clean');
 
 const watchPort = 8080;
-
 
 function task(cli, project) {
 
@@ -64,7 +64,8 @@ function buildDocs(project, cli, task) {
 
   const isWatch = task === 'watch';
 
-  const config = metalsmithTask.config(project.paths.source.docs, project.docsConfig.meta, isWatch);
+  const meta   = _.merge({social: project.socialConfig}, project.docsConfig.meta);
+  const config = metalsmithTask.config(project.paths.source.docs, meta, isWatch);
   const source = path.resolve(project.basePath, project.paths.source.docs.base);
   const dest   = path.resolve(project.basePath, project.paths.destination.docs);
 
