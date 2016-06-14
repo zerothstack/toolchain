@@ -42,7 +42,7 @@ function buildTypedoc(project, cli) {
     });
 
     project.gulp
-      .src([].concat(project.paths.source.all.ts, project.paths.source.all.definitions))
+      .src([].concat(project.paths.source.all.ts, project.paths.source.all.definitions, ['!**/*.spec.ts']))
       .pipe(plumber(resolve))
       .pipe(typedoc(_.omit(config, [
         'sourceMap',
