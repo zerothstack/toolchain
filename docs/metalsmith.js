@@ -12,26 +12,37 @@ const headingsidentifier = require('metalsmith-headings-identifier');
 const headings           = require('@xiphiaz/metalsmith-headings');
 const handlebars         = require('handlebars');
 const util               = require('util');
+const path               = require('path');
+const fs                 = require('fs');
 const _                  = require('lodash');
 const marked             = require('marked');
 
 const renderer = new marked.Renderer();
 
-const original = renderer.listitem;
+const original    = renderer.listitem;
 renderer.listitem = function (text) {
 
   const checkboxMatcher = /\[([x\s])\]/i;
-  const match = text.match(checkboxMatcher);
+  const match           = text.match(checkboxMatcher);
 
-  if (match){
+  if (match) {
     text = text.replace(checkboxMatcher, (match, type) => {
       return type == ' ' ? '&#9744' : '&#9745';
     });
 
-    return original.call(this, text).replace('<li>', '<li class="checkbox">');
+    return original.call(this, text)
+      .replace('<li>', '<li class="checkbox">');
   }
 
   return original.call(this, text);
+};
+
+renderer.link = function (href, title, text) {
+  var link = marked.Renderer.prototype.link.call(this, href, title, text);
+  if (/^http/.exec(href)) {
+    return link.replace('<a', '<a target="_blank" ');
+  }
+  return link;
 };
 
 handlebars.registerHelper('debug', (optionalValue) => {
@@ -41,6 +52,12 @@ handlebars.registerHelper('debug', (optionalValue) => {
   }
 
   return util.inspect(this, {depth: 10});
+});
+
+handlebars.registerHelper('markdown', function (fileReference) {
+
+  const fileContent = fs.readFileSync(path.resolve(this.rootPath, fileReference), 'utf8');
+  return marked(fileContent, {renderer});
 });
 
 handlebars.registerHelper('ifEqual', function (a, b, opt) {
@@ -139,6 +156,7 @@ function config(pathConfig, meta, watching) {
 
   let defininitions = _.merge(meta, {
     pkg: require(pathConfig.root + '/package.json'),
+    rootPath: pathConfig.root,
   });
 
   if (watching) {

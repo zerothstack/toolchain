@@ -5,7 +5,8 @@
   "main": "index.js",
   "preferGlobal": true,
   "scripts": {
-    "test": "gulp test"
+    "test": "gulp test",
+    "postversion": "u changelog"
   },
   "bin": {
     "u": "bin/execute.js",
@@ -37,6 +38,7 @@
     "@xiphiaz/metalsmith-watch": "^1.0.4",
     "@xiphiaz/vantage": "^1.8.0",
     "babel-register": "^6.9.0",
+    "conventional-changelog": "^1.1.0",
     "core-js": "^2.4.0",
     "coveralls": "^2.11.9",
     "css-loader": "^0.23.1",
@@ -111,5 +113,6 @@
     "webpack-merge": "^0.12.0",
     "webpack-stream": "^3.2.0",
     "zone.js": "^0.6.12"
-  }
+  },
+  "devDependencies": {}
 }
