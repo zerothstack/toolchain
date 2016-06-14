@@ -6,7 +6,7 @@
   "preferGlobal": true,
   "scripts": {
     "test": "gulp test",
-    "postversion": "u changelog"
+    "postversion": "u changelog && git commit -am 'chore(changelog): updated changelog'"
   },
   "bin": {
     "u": "bin/execute.js",
