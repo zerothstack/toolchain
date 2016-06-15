@@ -135,6 +135,10 @@ h6:hover .heading-anchor span:before {
   bottom: 0px;
 }
 
+.contents img {
+  max-width: 100%;
+}
+
 .contents ul {
   margin-left: 2rem;
 }
