@@ -3,6 +3,21 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const helpers           = require('./helpers');
 const path              = require('path');
+const fs                = require('fs');
+const dotenv            = require('dotenv');
+const _                 = require('lodash');
+
+//read the env file
+const file    = fs.readFileSync(path.resolve(process.cwd(), '.env'));
+const allVars = dotenv.parse(file);
+const globals = _.reduce(allVars, (exportVars, value, key) => {
+  if (_.startsWith(key, 'PUBLIC_')) {
+    exportVars[key.replace(/^PUBLIC_/, '')] = JSON.stringify(value);
+  }
+  return exportVars;
+}, {});
+
+console.log('exporting vars', globals);
 
 module.exports = {
   // @todo refactor to use paths defined in tasks.js (class UbiquitsProject)
@@ -66,6 +81,9 @@ module.exports = {
     // @todo refactor to use paths defined in tasks.js (class UbiquitsProject)
     new HtmlWebpackPlugin({
       template: 'src/browser/index.html'
+    }),
+    new webpack.DefinePlugin({
+      'process.env': globals
     })
   ],
 
