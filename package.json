@@ -6,7 +6,8 @@
   "preferGlobal": true,
   "scripts": {
     "test": "mocha --no-timeouts test/test.js",
-    "postversion": "u changelog && git commit -am 'chore(changelog): updated changelog'"
+    "postversion": "u changelog && git commit -am 'chore(changelog): updated changelog'",
+    "deploy-patch": "npm version patch && npm publish && git push origin master --tags"
   },
   "bin": {
     "u": "bin/execute.js",

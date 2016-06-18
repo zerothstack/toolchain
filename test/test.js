@@ -39,5 +39,17 @@ describe('Initialization', () => {
     expect(package.description).to.equal('Test project');
 
   });
+  
+  it.skip('creates and commits a new repo', () => {
+    //@todo
+  });
+
+});
+
+describe.skip('Project build', () => {
+
+});
+
+describe.skip('Project test', () => {
 
 });
