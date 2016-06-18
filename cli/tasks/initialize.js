@@ -213,9 +213,9 @@ function getProjectConfig(cli, forceDefaults, gitConf) {
   const defaults = {
     projectName: path.basename(process.cwd()),
     keywords: 'ubiquits',
-    name: gitConf.then(config => config.getString("user.name")),
+    name: gitConf.then(config => config.getString("user.name")).catch(() => ''),
     description: "Test project",
-    email: gitConf.then(config => config.getString("user.email")),
+    email: gitConf.then(config => config.getString("user.email")).catch(() => ''),
     license: 'MIT',
     remote: false,
   };
