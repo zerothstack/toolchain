@@ -124,8 +124,10 @@ function commitChanges(cli, repo, commitMessage, configResponses) {
       cli.log(`committing`);
       let author = git.Signature.default(repo);
       if (!author || !author.email) {
-        cli.log(`default committer not found, using details from package.json (${configResponses.name}:${configResponses.email})`);
-        author = git.Signature.now(configResponses.name, configResponses.email)
+        const fallbackEmail = configResponses.email || 'committer@ubiquits.com';
+        const fallbackUser = configResponses.name || 'Committer Bot';
+        cli.log(`default committer not found, using fallback details (${fallbackUser}:${fallbackEmail})`);
+        author = git.Signature.now(fallbackUser, fallbackEmail);
       }
 
       return repo.createCommit("HEAD", author, author, commitMessage, oid, []);
