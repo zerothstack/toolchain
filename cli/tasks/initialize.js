@@ -123,7 +123,8 @@ function commitChanges(cli, repo, commitMessage, configResponses) {
     .then((oid) => {
       cli.log(`committing`);
       let author = git.Signature.default(repo);
-      if (!author) {
+      if (!author || !author.email) {
+        cli.log(`default committer not found, using details from package.json (${configResponses.name}:${configResponses.email})`);
         author = git.Signature.now(configResponses.name, configResponses.email)
       }
 
