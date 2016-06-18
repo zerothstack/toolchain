@@ -1,3 +1,16 @@
+<a name="0.1.24"></a>
+## [0.1.24](https://github.com/ubiquits/toolchain/compare/v0.1.23...v0.1.24) (2016-06-18)
+
+
+### Bug Fixes
+
+* **initialization:** Add forced fallback when package is empty ([e1a71d1](https://github.com/ubiquits/toolchain/commit/e1a71d1))
+* **initialization:** Added fallback for if the current user signature cannot be found for commit ([0dda8fe](https://github.com/ubiquits/toolchain/commit/0dda8fe))
+* **initialization:** Added fallback for when the username/email can't be found ([000cfde](https://github.com/ubiquits/toolchain/commit/000cfde))
+* **initialization:** Correct fallback for commit author to verify the email ([e053d58](https://github.com/ubiquits/toolchain/commit/e053d58))
+
+
+
 <a name="0.1.23"></a>
 ## [0.1.23](https://github.com/ubiquits/toolchain/compare/v0.1.22...v0.1.23) (2016-06-18)
 
