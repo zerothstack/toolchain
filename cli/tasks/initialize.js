@@ -11,25 +11,30 @@ function task(cli, project) {
 
   cli.command('init', 'Initializes new Ubiquits project')
     .option('-c', '--confirm', 'Confirm with the user if they want to initialize a new project')
+    .option('-y', '--yes', 'Accept all defaults')
+    .option('-s', '--skip-install', 'Skip installation')
     .action(function (args, callback) {
 
       const emptyDir = fs.readdirSync(process.cwd()).length === 0;
 
       const gitConf = git.Config.openDefault();
 
-      let quickstartClonePromise = null;
-      let configResponses         = null;
-      let repo                    = null;
+      const useDefaults = !!args.options.y;
+      const skipInstall = !!args.options.s;
 
-      return confirmInit(this, !!args.options.c, emptyDir)
+      let quickstartClonePromise = null;
+      let configResponses        = null;
+      let repo                   = null;
+
+      return confirmInit(this, useDefaults, !!args.options.c, emptyDir)
         .then((res) => {
           quickstartClonePromise = cloneQuickstart(this);
           // we are explicitly not returning the promise here so the clone is non blocking
         })
-        .then(() => getProjectConfig(this, gitConf))
+        .then(() => getProjectConfig(this, useDefaults, gitConf))
         .then((responses) => {
           configResponses = responses;
-          if (!repo){ //cloning quickstart is not complete
+          if (!repo) { //cloning quickstart is not complete
             this.log('Standby while the quickstart files download...');
           }
           //at this point we need the repo to be finished cloning
@@ -53,10 +58,9 @@ function task(cli, project) {
 
         })
         .then(() => commitChanges(this, repo, `Initial commit of Ubiquits framework`))
-        .then(() => installDependencies(this))
+        .then(() => installDependencies(this, skipInstall))
         // @todo .then prompt whether to start watchers, start tour??
         .catch(e => {
-          this.log(e.message);
           if (e.message == 'Cancelled') {
             return;
           }
@@ -67,12 +71,18 @@ function task(cli, project) {
 
 }
 
-function installDependencies(cli) {
+function installDependencies(cli, skip) {
+
+  if (skip){
+    cli.log('Skipping dependency install. You will need to do this manually with `npm install`');
+    return Promise.resolve();
+  }
+
   cli.log('Installing dependencies. This will take some time...');
   return new Promise((resolve, reject) => {
     const cmd = spawn('npm', ['install'], {
       cwd: process.cwd(),
-      stdio: [0,1,2]
+      stdio: [0, 1, 2]
     });
 
     cmd.on('close', (code) => {
@@ -102,7 +112,8 @@ function commitChanges(cli, repo, commitMessage) {
     })
     .then(() => {
 
-      const totalFileSize = index.entries().reduce((sum, file) => sum + file.fileSize, 0);
+      const totalFileSize = index.entries()
+        .reduce((sum, file) => sum + file.fileSize, 0);
 
       cli.log(`Added ${index.entryCount()} files totalling ${filesize(totalFileSize)}`);
 
@@ -149,7 +160,7 @@ function cloneQuickstart(cli) {
         fs.removeSync(tmpDest + '/.git');
 
         //stream files into the current working directory, not overwriting any files
-        vinylFs.src(tmpDest + '/**/*', {cwd: cwd, dot:true})
+        vinylFs.src(tmpDest + '/**/*', {cwd: cwd, dot: true})
           .pipe(vinylFs.dest(cwd, {overwrite: false}))
           .on('end', () => {
             fs.removeSync(tmpDest);
@@ -163,7 +174,10 @@ function cloneQuickstart(cli) {
     });
 }
 
-function confirmInit(cli, doConfirm, emptyDir) {
+function confirmInit(cli, forceAccept, doConfirm, emptyDir) {
+  if (forceAccept) {
+    return Promise.resolve();
+  }
   return cli.prompt([
     {
       name: 'confirm',
@@ -179,7 +193,8 @@ function confirmInit(cli, doConfirm, emptyDir) {
       when: (responses) => responses.confirm !== false && !emptyDir,
       message: `You are running initialize in a non-empty directory\n` +
       chalk.red(`All files in this directory will be removed! Are you sure you want to do that?`),
-    }])
+    }
+  ])
     .then((response) => {
       if (!response.confirm) {
         throw new Error('Cancelled');
@@ -192,18 +207,34 @@ function confirmInit(cli, doConfirm, emptyDir) {
  * Prompt the user for configuration options
  * @returns {string|*}
  */
-function getProjectConfig(cli, gitConf) {
+function getProjectConfig(cli, forceDefaults, gitConf) {
+
+
+  const defaults = {
+    projectName: path.basename(process.cwd()),
+    keywords: 'ubiquits',
+    name: gitConf.then(config => config.getString("user.name")),
+    description: "Test project",
+    email: gitConf.then(config => config.getString("user.email")),
+    license: 'MIT',
+    remote: false,
+  };
+
+  if (forceDefaults){
+    return promisedProperties(defaults);
+  }
+
   return cli.prompt([
     {
       name: 'projectName',
       type: 'input',
-      default: path.basename(process.cwd()),
+      default: defaults.projectName,
       message: `What is your project called?`
     },
     {
       name: 'keywords',
       type: 'input',
-      default: 'ubiquits',
+      default: defaults.keywords,
       message: `Enter keywords (comma separated)`,
       filter: input => input.split(/[\s,]+/)
     },
@@ -212,10 +243,7 @@ function getProjectConfig(cli, gitConf) {
       type: 'input',
       default: function () {
         var done = this.async();
-
-        gitConf
-          .then(config => config.getString("user.name"))
-          .then(done);
+        defaults.email.then(done);
       },
       message: "What's your name?",
     },
@@ -223,17 +251,14 @@ function getProjectConfig(cli, gitConf) {
       name: 'description',
       type: 'input',
       message: "Describe your project",
-      default: "Test project"
+      default: defaults.description
     },
     {
       name: 'email',
       type: 'input',
       default: function () {
         var done = this.async();
-
-        gitConf
-          .then(config => config.getString("user.email"))
-          .then(done);
+        defaults.email.then(done);
       },
       message: "What's your email?",
     },
@@ -241,7 +266,7 @@ function getProjectConfig(cli, gitConf) {
       name: 'license',
       type: 'list',
       message: "What license for the project?",
-      default: 'MIT',
+      default: defaults.license,
       choices: [
         {value: 'MIT', name: 'MIT License'},
         {value: 'ISC', name: 'ISC License'},
@@ -271,7 +296,9 @@ function getProjectConfig(cli, gitConf) {
       when: (responses) => responses.remote == true,
       default: function () {
         var done = this.async();
-        getRemoteGit().then(done).catch(done);
+        getRemoteGit()
+          .then(done)
+          .catch(done);
       },
     },
   ]);
@@ -311,6 +338,23 @@ function getRemoteGit() {
       return resolve(repo);
     })
   })
+
+}
+
+function promisedProperties(object) {
+
+  let promisedProperties = [];
+  const objectKeys = Object.keys(object);
+
+  objectKeys.forEach((key) => promisedProperties.push(object[key]));
+
+  return Promise.all(promisedProperties)
+    .then((resolvedValues) => {
+      return resolvedValues.reduce((resolvedObject, property, index) => {
+        resolvedObject[objectKeys[index]] = property;
+        return resolvedObject;
+      }, object);
+    });
 
 }
 
