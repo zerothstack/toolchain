@@ -11,6 +11,6 @@ branches:
   except:
   - "/^v[0-9\\.]+/"
 install:
-- travis_retry npm install
+- travis_retry npm install -g
 script:
 - npm test
