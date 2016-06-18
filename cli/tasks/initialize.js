@@ -57,7 +57,7 @@ function task(cli, project) {
           });
 
         })
-        .then(() => commitChanges(this, repo, `Initial commit of Ubiquits framework`))
+        .then(() => commitChanges(this, repo, `Initial commit of Ubiquits framework`, configResponses))
         .then(() => installDependencies(this, skipInstall))
         // @todo .then prompt whether to start watchers, start tour??
         .catch(e => {
@@ -73,7 +73,7 @@ function task(cli, project) {
 
 function installDependencies(cli, skip) {
 
-  if (skip){
+  if (skip) {
     cli.log('Skipping dependency install. You will need to do this manually with `npm install`');
     return Promise.resolve();
   }
@@ -99,7 +99,7 @@ function installDependencies(cli, skip) {
   });
 }
 
-function commitChanges(cli, repo, commitMessage) {
+function commitChanges(cli, repo, commitMessage, configResponses) {
 
   let index = null;
 
@@ -122,7 +122,11 @@ function commitChanges(cli, repo, commitMessage) {
     })
     .then((oid) => {
       cli.log(`committing`);
-      const author = git.Signature.default(repo);
+      let author = git.Signature.default(repo);
+      if (!author) {
+        author = git.Signature.now(configResponses.name, configResponses.email)
+      }
+
       return repo.createCommit("HEAD", author, author, commitMessage, oid, []);
     })
     .then((oid) => {
@@ -209,18 +213,19 @@ function confirmInit(cli, forceAccept, doConfirm, emptyDir) {
  */
 function getProjectConfig(cli, forceDefaults, gitConf) {
 
-
   const defaults = {
     projectName: path.basename(process.cwd()),
     keywords: 'ubiquits',
-    name: gitConf.then(config => config.getString("user.name")).catch(() => ''),
+    name: gitConf.then(config => config.getString("user.name"))
+      .catch(() => ''),
     description: "Test project",
-    email: gitConf.then(config => config.getString("user.email")).catch(() => ''),
+    email: gitConf.then(config => config.getString("user.email"))
+      .catch(() => ''),
     license: 'MIT',
     remote: false,
   };
 
-  if (forceDefaults){
+  if (forceDefaults) {
     return promisedProperties(defaults);
   }
 
@@ -344,7 +349,7 @@ function getRemoteGit() {
 function promisedProperties(object) {
 
   let promisedProperties = [];
-  const objectKeys = Object.keys(object);
+  const objectKeys       = Object.keys(object);
 
   objectKeys.forEach((key) => promisedProperties.push(object[key]));
 
