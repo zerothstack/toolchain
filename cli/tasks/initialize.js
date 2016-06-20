@@ -254,7 +254,7 @@ function getProjectConfig(cli, forceDefaults, gitConf) {
       type: 'input',
       default: function () {
         var done = this.async();
-        defaults.email.then(done);
+        defaults.name.then(done);
       },
       message: "What's your name?",
     },
