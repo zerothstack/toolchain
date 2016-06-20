@@ -1,3 +1,13 @@
+<a name="0.1.27"></a>
+## [0.1.27](https://github.com/ubiquits/toolchain/compare/v0.1.26...v0.1.27) (2016-06-20)
+
+
+### Bug Fixes
+
+* **chalk:** Fixed incorrect chalk call ([d246a8a](https://github.com/ubiquits/toolchain/commit/d246a8a))
+
+
+
 <a name="0.1.26"></a>
 ## [0.1.26](https://github.com/ubiquits/toolchain/compare/v0.1.25...v0.1.26) (2016-06-20)
 
