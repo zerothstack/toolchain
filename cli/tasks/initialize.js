@@ -6,6 +6,7 @@ const init     = require('init-package-json');
 const vinylFs  = require('vinyl-fs');
 const filesize = require('filesize');
 const {spawn}  = require('child_process');
+const {getTour}  = require('./tour');
 
 function task(cli, project) {
 
@@ -13,6 +14,7 @@ function task(cli, project) {
     .option('-c', '--confirm', 'Confirm with the user if they want to initialize a new project')
     .option('-y', '--yes', 'Accept all defaults')
     .option('-s', '--skip-install', 'Skip installation')
+    .option('-t', '--skip-tour', 'Skip tour')
     .action(function (args, callback) {
 
       const emptyDir = fs.readdirSync(process.cwd()).length === 0;
@@ -20,6 +22,7 @@ function task(cli, project) {
       const gitConf = git.Config.openDefault();
 
       const useDefaults = !!args.options.y;
+      const skipTour    = !!args.options.t;
       const skipInstall = !!args.options.s;
 
       let quickstartClonePromise = null;
@@ -59,7 +62,7 @@ function task(cli, project) {
         })
         .then(() => commitChanges(this, repo, `Initial commit of Ubiquits framework`, configResponses))
         .then(() => installDependencies(this, skipInstall))
-        // @todo .then prompt whether to start watchers, start tour??
+        .then(() => !skipTour && runTour(this, cli))
         .catch(e => {
           if (e.message == 'Cancelled') {
             return;
@@ -125,7 +128,7 @@ function commitChanges(cli, repo, commitMessage, configResponses) {
       let author = git.Signature.default(repo);
       if (!author || !author.email) {
         const fallbackEmail = configResponses.email || 'committer@ubiquits.com';
-        const fallbackUser = configResponses.name || 'Committer Bot';
+        const fallbackUser  = configResponses.name || 'Committer Bot';
         cli.log(`default committer not found, using fallback details (${fallbackUser}:${fallbackEmail})`);
         author = git.Signature.now(fallbackUser, fallbackEmail);
       }
@@ -347,6 +350,13 @@ function getRemoteGit() {
     })
   })
 
+}
+
+function runTour(session, vantage) {
+
+  getTour(vantage, session)();
+
+  return true;
 }
 
 function promisedProperties(object) {

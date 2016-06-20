@@ -46,6 +46,11 @@ vantage
       return cb();
     }
 
+    //'end' ending tour
+    if (args.words.length && ['end'].indexOf(args.words[0]) >= 0) {
+      return cb();
+    }
+
     // test if command starts with u or ubiquits,
     // user probably doesn't realise they are already in the shell
     if (args.words.length && ['u', 'ubiquits'].indexOf(args.words[0]) >= 0) {
