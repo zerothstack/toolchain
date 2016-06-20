@@ -1,3 +1,13 @@
+<a name="0.1.25"></a>
+## [0.1.25](https://github.com/ubiquits/toolchain/compare/v0.1.24...v0.1.25) (2016-06-20)
+
+
+### Features
+
+* **tour:** Implement basic tour to familiarize users ([c6b1b85](https://github.com/ubiquits/toolchain/commit/c6b1b85))
+
+
+
 <a name="0.1.24"></a>
 ## [0.1.24](https://github.com/ubiquits/toolchain/compare/v0.1.23...v0.1.24) (2016-06-18)
 
