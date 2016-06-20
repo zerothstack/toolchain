@@ -60,8 +60,9 @@ function task(cli, project) {
           });
 
         })
+        .then(() => copyDotfile())
         .then(() => commitChanges(this, repo, `Initial commit of Ubiquits framework`, configResponses))
-        .then(() => installDependencies(this, skipInstall))
+        // .then(() => installDependencies(this, skipInstall))
         .then(() => !skipTour && runTour(this, cli))
         .catch(e => {
           if (e.message == 'Cancelled') {
@@ -72,6 +73,18 @@ function task(cli, project) {
 
     });
 
+}
+
+function copyDotfile(){
+  return new Promise((resolve, reject) => {
+
+    fs.copy('.env.example', '.env', (err) => {
+      if (err){
+        reject(err);
+      }
+      resolve();
+    });
+  });// @todo .then() replace app keys when (if) they get added
 }
 
 function installDependencies(cli, skip) {
