@@ -93,7 +93,7 @@ if (process.argv.length <= 2) { //one arg, drop into shell
   vantage.show();
   // only output the banner when there is room
   if (process.stdout.columns > 68) {
-    vantage.log(chalk.dim(banner(chalk.white('$ Command Line Interface'))));
+    vantage.log(chalk.dim.white(banner('$ Command Line Interface')));
   }
 
   // check if empty directory

@@ -160,7 +160,7 @@ function makeListener(steps, stack, cli, session) {
   let listener = (e) => {
 
     if (e && e.command === 'end') {
-      session.log(chalk.dim('Your tour has ended.'));
+      session.log(chalk.dim.white('Your tour has ended.'));
       cli.removeListener(`client_command_executed`, stack[stack.length - 1]);
       return;
     }
