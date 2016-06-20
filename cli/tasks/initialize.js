@@ -62,7 +62,7 @@ function task(cli, project) {
         })
         .then(() => copyDotfile())
         .then(() => commitChanges(this, repo, `Initial commit of Ubiquits framework`, configResponses))
-        // .then(() => installDependencies(this, skipInstall))
+        .then(() => installDependencies(this, skipInstall))
         .then(() => !skipTour && runTour(this, cli))
         .catch(e => {
           if (e.message == 'Cancelled') {
