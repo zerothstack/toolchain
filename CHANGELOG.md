@@ -1,3 +1,13 @@
+<a name="0.1.26"></a>
+## [0.1.26](https://github.com/ubiquits/toolchain/compare/v0.1.25...v0.1.26) (2016-06-20)
+
+
+### Bug Fixes
+
+* **initialization:** Fixed default for name using email default ([e8e9363](https://github.com/ubiquits/toolchain/commit/e8e9363))
+
+
+
 <a name="0.1.25"></a>
 ## [0.1.25](https://github.com/ubiquits/toolchain/compare/v0.1.24...v0.1.25) (2016-06-20)
 
