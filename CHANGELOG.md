@@ -1,3 +1,8 @@
+<a name="0.1.31"></a>
+## [0.1.31](https://github.com/ubiquits/toolchain/compare/v0.1.30...v0.1.31) (2016-06-22)
+
+
+
 <a name="0.1.30"></a>
 ## [0.1.30](https://github.com/ubiquits/toolchain/compare/v0.1.29...v0.1.30) (2016-06-20)
 
