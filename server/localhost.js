@@ -8,7 +8,7 @@ const Webpack = require('webpack');
 
 const bootstrap = require(process.env.NODEMON_ENTRYPOINT).default;
 
-module.exports = bootstrap.then(({server, logger}) => {
+module.exports = bootstrap().then(({server, logger}) => {
 
   const config   = require('../browser/webpack.dev.js');
   const compiler = new Webpack(config);
