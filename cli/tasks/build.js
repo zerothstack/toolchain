@@ -45,6 +45,7 @@ function build(project, cli, context) {
 
     const tsProject = typescript.createProject(config.tsConfig);
     const tsResult  = project.gulp.src(config.source, {
+      typescript: require('typescript'),
       cwd: project.basePath,
       base: project.paths.source.base
     })
