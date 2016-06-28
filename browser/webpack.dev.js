@@ -16,6 +16,7 @@ module.exports = webpackMerge(commonConfig, {
 
   plugins: [
     new ExtractTextPlugin('[name].css')
+    // @todo implement http://webpack.github.io/docs/list-of-plugins.html#watchignoreplugin to stop watching node-modules
   ],
 
   devServer: {
