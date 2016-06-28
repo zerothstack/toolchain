@@ -41,11 +41,11 @@ function build(project, cli, context) {
         config = allConfig;
     }
 
-    cli.log(`Building ts for [${context || 'all'}]`);
-
-    const tsProject = typescript.createProject(config.tsConfig);
+    const tsProject = typescript.createProject(config.tsConfig, {
+      typescript: require('typescript')
+    });
+    cli.log(`Building ts for [${context || 'all'}] with typescript@${tsProject.typescript.version}`);
     const tsResult  = project.gulp.src(config.source, {
-      typescript: require('typescript'),
       cwd: project.basePath,
       base: project.paths.source.base
     })

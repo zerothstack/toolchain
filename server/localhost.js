@@ -26,13 +26,13 @@ module.exports = bootstrap().then(({server, logger}) => {
 
   const serverType = server.constructor.name;
 
+  logger.info(`registering [${serverType}] driver`);
+
   switch (serverType) {
     case 'HapiServer':
-      console.log('registering hapi driver');
       livereloadDriver = require('./hapiLivereload');
       break;
     case 'ExpressServer':
-      console.log('registering express driver');
       livereloadDriver = require('./expressLivereload');
       break;
     default:

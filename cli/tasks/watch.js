@@ -71,9 +71,10 @@ function watchServer(project, cli) {
       ],
       nodeArgs: [
         // ad-hoc debugging (doesn't allow debugging of bootstrap, but app will run with debugger off)
-        '--debug=5858'
+        '--debug=5858',
         // explicit debugging (app won't start until remote debugger connects)
-        // '--debug-brk=5858'
+        // '--debug-brk=5858',
+        '--expose_debug_as=v8debug', //required for webstorm due to https://youtrack.jetbrains.com/issue/WEB-21717
       ],
       env: {
         'NODE_ENV': 'development',

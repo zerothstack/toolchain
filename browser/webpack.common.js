@@ -84,7 +84,7 @@ module.exports = {
     }),
     new webpack.DefinePlugin({
       'process.env': globals
-    })
+    }),
   ],
 
   ts: {
