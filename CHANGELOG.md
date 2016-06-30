@@ -1,3 +1,13 @@
+<a name="0.1.34"></a>
+## [0.1.34](https://github.com/ubiquits/toolchain/compare/v0.1.33...v0.1.34) (2016-06-30)
+
+
+### Features
+
+* **watcher:** Add env flag to force nodemon to allow color output ([4bd2ea5](https://github.com/ubiquits/toolchain/commit/4bd2ea5))
+
+
+
 <a name="0.1.33"></a>
 ## [0.1.33](https://github.com/ubiquits/toolchain/compare/v0.1.32...v0.1.33) (2016-06-28)
 
