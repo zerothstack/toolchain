@@ -85,8 +85,6 @@ module.exports = {
     new webpack.DefinePlugin({
       'process.env': globals
     }),
-    //@todo update typeorm to be inherently platform-independent so this is unecessary
-    new webpack.IgnorePlugin(/ConnectionManager|MysqlDriver|PostgresDriver|require-all/),
   ],
 
   ts: {
