@@ -1,3 +1,13 @@
+<a name="0.1.35"></a>
+## [0.1.35](https://github.com/ubiquits/toolchain/compare/v0.1.34...v0.1.35) (2016-07-01)
+
+
+### Bug Fixes
+
+* **docs:** Fix doc sort order for guide collection to be collectionSort, title ([c5219ab](https://github.com/ubiquits/toolchain/commit/c5219ab))
+
+
+
 <a name="0.1.34"></a>
 ## [0.1.34](https://github.com/ubiquits/toolchain/compare/v0.1.33...v0.1.34) (2016-06-30)
 
