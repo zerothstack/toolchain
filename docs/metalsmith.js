@@ -201,7 +201,9 @@ function config(pathConfig, meta, watching) {
         sortBy: 'collectionSort',
       },
       guide: {
-        sortBy: 'collectionSort',
+        sortBy: (a, b) => {
+          return _.indexOf(_.sortBy([a, b], ['collectionSort', 'title']), a) == 1 ? 1 : -1;
+        },
       }
     }))
     .use(permalinks({relative: false}))
