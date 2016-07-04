@@ -10,7 +10,7 @@ require('zone.js/dist/jasmine-patch');
 require('zone.js/dist/async-test');
 /**
  * @todo resolve why this absolute replacement is necessary.
- * It seems that karma is exectuting in a different context (__dirname, not process.cwd()) and any
+ * It seems that karma is executing in a different context (__dirname, not process.cwd()) and any
  * changes to the baseDir config seems to have no effect.
  * To resolve the issue, the solution is to use the string-replace-loader to make a replacement
  * at load-time to make the path absolute based on process.cwd() from webpack.test.ts

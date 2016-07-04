@@ -96,6 +96,7 @@ function testServer(project, cli) {
     require('core-js');
     require('reflect-metadata');
     require('zone.js/dist/zone-node');
+    require('zone.js/dist/async-test');
 
     project.gulp.src(config.source, {cwd: project.basePath})
       .pipe(plumber(reject))
