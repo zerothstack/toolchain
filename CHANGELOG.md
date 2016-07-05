@@ -1,3 +1,13 @@
+<a name="0.1.39"></a>
+## [0.1.39](https://github.com/ubiquits/toolchain/compare/v0.1.38...v0.1.39) (2016-07-05)
+
+
+
+<a name="0.1.38"></a>
+## [0.1.38](https://github.com/ubiquits/toolchain/compare/v0.1.37...v0.1.38) (2016-07-05)
+
+
+
 <a name="0.1.37"></a>
 ## [0.1.37](https://github.com/ubiquits/toolchain/compare/v0.1.36...v0.1.37) (2016-07-05)
 
