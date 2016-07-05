@@ -6,6 +6,7 @@ const serve              = require('@xiphiaz/metalsmith-serve');
 const watch              = require('@xiphiaz/metalsmith-watch');
 const prism              = require('metalsmith-prism');
 const collections        = require('metalsmith-collections');
+const drafts             = require('metalsmith-drafts');
 const define             = require('metalsmith-define');
 const dateFormatter      = require('metalsmith-date-formatter');
 const headingsidentifier = require('metalsmith-headings-identifier');
@@ -158,18 +159,18 @@ function config(pathConfig, meta, watching) {
     pkg: require(pathConfig.root + '/package.json'),
     rootPath: pathConfig.root,
   });
-  
-  if (meta.social.github.star){
+
+  if (meta.social.github.star) {
     const githubMatcher = /github.com\/(.+?)\/([^#?\/]+)/;
-    const matches = defininitions.pkg.homepage.match(githubMatcher);
-    
-    if (matches){
+    const matches       = defininitions.pkg.homepage.match(githubMatcher);
+
+    if (matches) {
       meta.social.github.star = {
         repo: matches[1],
         user: matches[2],
       }
     }
-    
+
   }
 
   if (watching) {
@@ -184,6 +185,7 @@ function config(pathConfig, meta, watching) {
     .clean(true);
 
   return metalsmith
+    .use(drafts())
     .use(define(defininitions))
     .use(markdown({
       langPrefix: 'language-',
