@@ -206,6 +206,10 @@ function config(pathConfig, meta, watching) {
         sortBy: (a, b) => {
           return _.indexOf(_.sortBy([a, b], ['collectionSort', 'title']), a) == 1 ? 1 : -1;
         },
+      },
+      articles: {
+        sortBy: 'date',
+        reverse: true,
       }
     }))
     .use(permalinks({relative: false}))
