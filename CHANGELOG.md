@@ -1,3 +1,13 @@
+<a name="0.1.41"></a>
+## [0.1.41](https://github.com/ubiquits/toolchain/compare/v0.1.40...v0.1.41) (2016-07-07)
+
+
+### Features
+
+* **docs:** Updated docs template for news articles ([0e13b45](https://github.com/ubiquits/toolchain/commit/0e13b45))
+
+
+
 <a name="0.1.40"></a>
 ## [0.1.40](https://github.com/ubiquits/toolchain/compare/v0.1.39...v0.1.40) (2016-07-05)
 
