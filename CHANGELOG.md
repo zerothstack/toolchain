@@ -1,3 +1,13 @@
+<a name="0.1.42"></a>
+## [0.1.42](https://github.com/ubiquits/toolchain/compare/v0.1.41...v0.1.42) (2016-07-07)
+
+
+### Features
+
+* **gitter:** Add gitter sidecar support ([df23d46](https://github.com/ubiquits/toolchain/commit/df23d46))
+
+
+
 <a name="0.1.41"></a>
 ## [0.1.41](https://github.com/ubiquits/toolchain/compare/v0.1.40...v0.1.41) (2016-07-07)
 
