@@ -1,3 +1,13 @@
+<a name="0.2.0"></a>
+# [0.2.0](https://github.com/ubiquits/toolchain/compare/v0.1.42...v0.2.0) (2016-07-19)
+
+
+### Features
+
+* **typescript:** Updated to typescript 2.0, fixed number of issues with build ([fa2c256](https://github.com/ubiquits/toolchain/commit/fa2c256))
+
+
+
 <a name="0.1.42"></a>
 ## [0.1.42](https://github.com/ubiquits/toolchain/compare/v0.1.41...v0.1.42) (2016-07-07)
 
