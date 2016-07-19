@@ -24,37 +24,12 @@ class UbiquitsProject {
         base: './src',
         server: {
           tsConfig: this.basePath + '/tsconfig.server.json',
-          ts: [
-            './src/server/**/*.ts',
-            './src/common/**/*.ts',
-          ],
-          definitions: [
-            './typings/**/*.d.ts',
-            '!./typings/index.d.ts',
-            '!./typings/**/core-js/*.d.ts',
-          ]
         },
         browser: {
           tsConfig: this.basePath + '/tsconfig.browser.json',
-          ts: [
-            './src/browser/**/*.ts',
-            './src/common/**/*.ts',
-          ],
-          definitions: [
-            './typings/**/*.d.ts',
-            '!./typings/index.d.ts',
-          ]
         },
         all: {
-          tsConfig: this.basePath + '/tsconfig.json',
-          ts: [
-            './src/**/*.ts'
-          ],
-          definitions: [
-            './typings/**/*.d.ts',
-            '!./typings/index.d.ts',
-            '!./typings/**/core-js/*.d.ts',
-          ]
+          tsConfig: this.basePath + '/tsconfig.all.json',
         },
         docs: {
           base: './docs',
@@ -67,7 +42,7 @@ class UbiquitsProject {
         lib: './lib',
         dist: './dist',
         coverage: './coverage',
-        server: 'lib/server',
+        server: 'dist/server',
         browser: 'dist/browser',
         docs: './dist-docs'
       }

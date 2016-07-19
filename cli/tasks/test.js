@@ -1,14 +1,15 @@
-const SpecReporter  = require('jasmine-spec-reporter');
-const chalk         = require('chalk');
-const istanbul      = require('gulp-istanbul');
-const tap           = require('gulp-tap');
-const plumber       = require('gulp-plumber');
-const jasmine       = require('gulp-jasmine');
-const remapIstanbul = require('remap-istanbul/lib/gulpRemapIstanbul');
-const fs            = require('fs');
-const path          = require('path');
-const merge         = require('gulp-merge-json');
-const KarmaServer   = require('karma').Server;
+const SpecReporter      = require('jasmine-spec-reporter');
+const chalk             = require('chalk');
+const istanbul          = require('gulp-istanbul');
+const tap               = require('gulp-tap');
+const plumber           = require('gulp-plumber');
+const jasmine           = require('gulp-jasmine');
+const gulpRemapIstanbul = require('remap-istanbul/lib/gulpRemapIstanbul');
+const fs                = require('fs');
+const path              = require('path');
+const merge             = require('gulp-merge-json');
+const replace           = require('gulp-replace');
+const KarmaServer       = require('karma').Server;
 
 const {build} = require('./build');
 const {clean} = require('./clean');
@@ -19,7 +20,7 @@ function task(cli, project) {
     .option('-s', '--serial', 'Run environments in serial (default is parallel)')
     .action(function (args, callback) {
 
-      return clean(project, this, ['coverage', 'lib'])
+      return clean(project, this, ['coverage', 'dist'])
         .then(() => {
           let testPromiseFactories = [];
 
@@ -34,7 +35,7 @@ function task(cli, project) {
             testPromiseFactories.push(() => testBrowser(project, this));
           }
 
-          if (args.options.s){
+          if (args.options.s) {
             //run promises in serial
             return testPromiseFactories.reduce((prior, next) => {
               return prior.then(() => next());
@@ -56,8 +57,6 @@ function instrumentServer(project, cli) {
 
     const config = project.paths.destination.server + '/**/*.js';
 
-    console.log(config, project.basePath);
-
     project.gulp.src(config, {cwd: project.basePath})
     // Covering files
       .pipe(istanbul())
@@ -70,7 +69,6 @@ function instrumentServer(project, cli) {
 }
 /**
  * Run tests for server
- * @todo resolve issue where subsequent runs do not run the jasmine specs due to caching?
  * @param project
  * @param cli
  * @returns {Promise}
@@ -140,7 +138,7 @@ function remapCoverage(project, cli) {
 
   return new Promise((resolve, reject) => {
 
-    cli.log('Remapping coverage');
+    cli.log('Building coverage output');
 
     const config = {
       source: [
@@ -155,7 +153,8 @@ function remapCoverage(project, cli) {
         cli.log(chalk.blue('[merge]'), chalk.cyan('merging coverage info:', file.path));
       }))
       .pipe(merge('summary.json'))
-      .pipe(remapIstanbul({
+      .pipe(project.gulp.dest(project.paths.destination.coverage))
+      .pipe(gulpRemapIstanbul({
         reports: {
           'json': project.resolvePath('./coverage/summary/coverage.json'),
           'html': project.resolvePath('./coverage/summary/html-report'),
@@ -164,7 +163,8 @@ function remapCoverage(project, cli) {
         }
       }))
       .on('finish', () => {
-        cli.log(fs.readFileSync(project.resolvePath('./coverage/summary/text-summary')).toString());
+        cli.log(fs.readFileSync(project.resolvePath('./coverage/summary/text-summary'))
+          .toString());
         resolve();
       });
 

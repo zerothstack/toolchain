@@ -1,7 +1,8 @@
-const sourcemaps = require('gulp-sourcemaps');
-const typescript = require('gulp-typescript');
-const merge2     = require('merge2');
-const path       = require('path');
+const sourcemaps     = require('gulp-sourcemaps');
+const merge2         = require('merge2');
+const path           = require('path');
+const chalk           = require('chalk');
+var spawn = require('child_process').spawn;
 
 const {clean} = require('./clean');
 
@@ -19,18 +20,9 @@ function task(cli, project) {
 function build(project, cli, context) {
   return new Promise((resolve, reject) => {
 
-    let config      = {};
-    const allConfig = {
-      source: [].concat(project.paths.source.all.ts, project.paths.source.all.definitions),
-      destination: project.paths.destination.lib,
-      tsConfig: project.paths.source.all.tsConfig
-    };
-
-    const serverConfig = {
-      source: [].concat(project.paths.source.server.ts, project.paths.source.server.definitions),
-      destination: project.paths.destination.server,
-      tsConfig: project.paths.source.all.tsConfig
-    };
+    let config = {};
+    const allConfig = project.paths.source.all.tsConfig;
+    const serverConfig = project.paths.source.server.tsConfig;
 
     switch (context) {
 
@@ -41,24 +33,29 @@ function build(project, cli, context) {
         config = allConfig;
     }
 
-    const tsProject = typescript.createProject(config.tsConfig, {
-      typescript: require('typescript')
-    });
-    cli.log(`Building ts for [${context || 'all'}] with typescript@${tsProject.typescript.version}`);
-    const tsResult  = project.gulp.src(config.source, {
-      cwd: project.basePath,
-      base: project.paths.source.base
-    })
-      .pipe(sourcemaps.init())
-      .pipe(typescript(tsProject));
+    const cmd  = `tsc -p ${config} --pretty --skipLibCheck`;
+    cli.log(cmd);
+    const argArray = cmd.split(' ');
 
-    merge2([ // Merge the two output streams, so this task is finished when the IO of both operations are done.
-      tsResult.dts
-        .pipe(project.gulp.dest(config.destination)),
-      tsResult.js
-        .pipe(sourcemaps.write('.', {sourceRoot: path.resolve(project.basePath, project.paths.source.base)}))
-        .pipe(project.gulp.dest(config.destination))
-    ]).on('finish', resolve);
+    const compiler      = spawn(argArray.shift(), argArray, {
+      stdio: 'inherit'
+    });
+
+    compiler.on('close', (code) => {
+      let color = 'red';
+      if (code === 0) {
+        color = 'green';
+      }
+
+      this.log(chalk[color](`typescript compiler exited with code ${code}`));
+      resolve();
+    });
+
+    compiler.on('error', (code) => {
+      this.log(chalk.red(`Failed to run '${args}'.\n${code}`));
+      reject();
+    });
+
   });
 
 }
