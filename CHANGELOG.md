@@ -1,3 +1,18 @@
+<a name="0.2.2"></a>
+## [0.2.2](https://github.com/ubiquits/toolchain/compare/v0.2.0...v0.2.2) (2016-07-19)
+
+
+### Bug Fixes
+
+* **npm:** Dropped copying of package.json into lib as it does not work with travis ci deploy pattern ([bcf7b9f](https://github.com/ubiquits/toolchain/commit/bcf7b9f))
+
+
+### Features
+
+* **npm:** Added copying of package.json to lib so it can be published from there ([5d802ea](https://github.com/ubiquits/toolchain/commit/5d802ea))
+
+
+
 <a name="0.2.0"></a>
 # [0.2.0](https://github.com/ubiquits/toolchain/compare/v0.1.42...v0.2.0) (2016-07-19)
 
