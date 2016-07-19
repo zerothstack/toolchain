@@ -56,8 +56,6 @@ function build(project, cli, context) {
       reject();
     });
 
-  }).then(() => {
-    fs.copySync(project.basePath + '/package.json', project.paths.destination.lib+ '/package.json');
   });
 
 }
