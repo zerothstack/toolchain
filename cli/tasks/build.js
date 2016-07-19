@@ -1,8 +1,8 @@
-const sourcemaps     = require('gulp-sourcemaps');
-const merge2         = require('merge2');
-const path           = require('path');
-const chalk           = require('chalk');
-var spawn = require('child_process').spawn;
+const sourcemaps = require('gulp-sourcemaps');
+const merge2     = require('merge2');
+const chalk      = require('chalk');
+var spawn        = require('child_process').spawn;
+const fs       = require('fs-extra');
 
 const {clean} = require('./clean');
 
@@ -20,8 +20,8 @@ function task(cli, project) {
 function build(project, cli, context) {
   return new Promise((resolve, reject) => {
 
-    let config = {};
-    const allConfig = project.paths.source.all.tsConfig;
+    let config         = {};
+    const allConfig    = project.paths.source.all.tsConfig;
     const serverConfig = project.paths.source.server.tsConfig;
 
     switch (context) {
@@ -33,11 +33,11 @@ function build(project, cli, context) {
         config = allConfig;
     }
 
-    const cmd  = `tsc -p ${config} --pretty --skipLibCheck`;
+    const cmd = `tsc -p ${config} --pretty --skipLibCheck`;
     cli.log(cmd);
     const argArray = cmd.split(' ');
 
-    const compiler      = spawn(argArray.shift(), argArray, {
+    const compiler = spawn(argArray.shift(), argArray, {
       stdio: 'inherit'
     });
 
@@ -56,6 +56,8 @@ function build(project, cli, context) {
       reject();
     });
 
+  }).then(() => {
+    fs.copySync(project.basePath + '/package.json', project.paths.destination.lib+ '/package.json');
   });
 
 }
