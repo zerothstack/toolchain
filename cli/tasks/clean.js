@@ -1,13 +1,12 @@
-const rimraf   = require('gulp-rimraf');
 const _        = require('lodash');
-const plumber  = require('gulp-plumber');
 const inquirer = require('inquirer');
+const fs       = require('fs-extra');
 
 const options = ['coverage', 'lib', 'dist', 'docs'];
 
 function task(cli, project) {
 
-  cli.command('clean [dir]', 'Removes directories')
+  cli.command('clean [dir]', 'Clears directories')
     .action(function (args, callback) {
 
       let directoryPromise;
@@ -15,27 +14,29 @@ function task(cli, project) {
       if (args.dir && _.includes(options, args.dir)) {
         directoryPromise = Promise.resolve({directory: args.dir});
       } else {
-        directoryPromise = inquirer.prompt([{
-          name: 'directory',
-          type: 'list',
-          message: 'Which directory?',
-          choices: () => {
+        directoryPromise = inquirer.prompt([
+          {
+            name: 'directory',
+            type: 'list',
+            message: 'Which directory?',
+            choices: () => {
 
-            let userOptions = options.map((dir) => {
-              return {
-                value: dir,
-                name: `${dir} [${project.paths.destination[dir]}]`,
-              };
-            });
+              let userOptions = options.map((dir) => {
+                return {
+                  value: dir,
+                  name: `${dir} [${project.paths.destination[dir]}]`,
+                };
+              });
 
-            userOptions.push({
-              value: 'all',
-              name: '(All of the above)'
-            });
+              userOptions.push({
+                value: 'all',
+                name: '(All of the above)'
+              });
 
-            return userOptions;
+              return userOptions;
+            }
           }
-        }]);
+        ]);
       }
 
       return directoryPromise.then((prompt) => clean(project, this, prompt.directory))
@@ -45,30 +46,31 @@ function task(cli, project) {
 }
 
 function clean(project, cli, dir) {
-  return new Promise((resolve, reject) => {
 
-    let directory;
+  let directories;
 
-    if (_.isArray(dir)){
-      directory = dir.map((key) => project.paths.destination[key]);
-    } else if (dir == 'all') {
-      directory = options.map((key) => project.paths.destination[key]);
-    } else {
-      directory = project.paths.destination[dir];
-    }
+  if (_.isArray(dir)) {
+    directories = dir.map((key) => project.paths.destination[key]);
+  } else if (dir == 'all') {
+    directories = options.map((key) => project.paths.destination[key]);
+  } else {
+    directories = [project.paths.destination[dir]];
+  }
 
-    cli.log('Removing directory', directory);
+  cli.log('Cleaning directories', directories);
 
-    project.gulp.src(directory, {read: false, cwd: project.basePath})
-      .pipe(plumber(reject))
-      .pipe(rimraf())
-      .on('finish', () => {
-        cli.log('Done.');
-        resolve();
-      });
-
+  const emptyPromises = directories.map((dir) => {
+    return new Promise((resolve, reject) => {
+      fs.emptyDir(dir, (err) => {
+        if (err) {
+          return reject(err);
+        }
+        return resolve();
+      })
+    });
   });
 
+  return Promise.all(emptyPromises);
 }
 
 module.exports = {task, clean};

@@ -13,7 +13,7 @@ function task(cli, project) {
     .option('-s', '--serial', 'Run environments in serial (default is parallel)')
     .action(function (args, callback) {
 
-      return clean(project, this, ['dist', 'lib'])
+      return clean(project, this, ['dist'])
         .then(() => {
           let compilePromiseFactories = [];
 
