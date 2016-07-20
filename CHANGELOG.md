@@ -1,3 +1,13 @@
+<a name="0.2.3"></a>
+## [0.2.3](https://github.com/ubiquits/toolchain/compare/v0.2.2...v0.2.3) (2016-07-20)
+
+
+### Bug Fixes
+
+* **bin:** Update bin execution to exit process when failure occurs ([32811a7](https://github.com/ubiquits/toolchain/commit/32811a7))
+
+
+
 <a name="0.2.2"></a>
 ## [0.2.2](https://github.com/ubiquits/toolchain/compare/v0.2.0...v0.2.2) (2016-07-19)
 
