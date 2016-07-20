@@ -10,7 +10,7 @@ const {buildTypedoc} = require('./typedoc');
 function task(cli, project) {
 
   cli.command('deploy docs', 'Deploys documentation to git remote')
-    .option('-r', '--rebuild', 'Rebuild the documentation')
+    .option('-r, --rebuild', 'Rebuild the documentation')
     .action(function (args, callback) {
 
       let buildPromise = (doBuild) => {
@@ -24,7 +24,7 @@ function task(cli, project) {
           .then(() => buildTypedoc(project, this));
       };
 
-      return buildPromise(args.options.r)
+      return buildPromise(args.options.rebuild)
         .then(() => gitDeploy(project, this, project.deploymentConfig.docs))
 
     });

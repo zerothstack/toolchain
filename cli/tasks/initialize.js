@@ -11,25 +11,25 @@ const {getTour}  = require('./tour');
 function task(cli, project) {
 
   cli.command('init', 'Initializes new Ubiquits project')
-    .option('-c', '--confirm', 'Confirm with the user if they want to initialize a new project')
-    .option('-y', '--yes', 'Accept all defaults')
-    .option('-s', '--skip-install', 'Skip installation')
-    .option('-t', '--skip-tour', 'Skip tour')
+    .option('-c, --confirm', 'Confirm with the user if they want to initialize a new project')
+    .option('-y, --yes', 'Accept all defaults')
+    .option('-s, --skip-install', 'Skip installation')
+    .option('-t, --skip-tour', 'Skip tour')
     .action(function (args, callback) {
 
       const emptyDir = fs.readdirSync(process.cwd()).length === 0;
 
       const gitConf = git.Config.openDefault();
 
-      const useDefaults = !!args.options.y;
-      const skipTour    = !!args.options.t;
-      const skipInstall = !!args.options.s;
+      const useDefaults = !!args.options.yes;
+      const skipTour    = !!args.options['skip-tour'];
+      const skipInstall = !!args.options['skip-install'];
 
       let quickstartClonePromise = null;
       let configResponses        = null;
       let repo                   = null;
 
-      return confirmInit(this, useDefaults, !!args.options.c, emptyDir)
+      return confirmInit(this, useDefaults, !!args.options.confirm, emptyDir)
         .then((res) => {
           quickstartClonePromise = cloneQuickstart(this);
           // we are explicitly not returning the promise here so the clone is non blocking

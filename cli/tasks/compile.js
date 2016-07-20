@@ -10,7 +10,7 @@ const {clean} = require('./clean');
 function task(cli, project) {
 
   cli.command('compile [environment]', 'Compile environments for distribution')
-    .option('-s', '--serial', 'Run environments in serial (default is parallel)')
+    .option('-s, --serial', 'Run environments in serial (default is parallel)')
     .action(function (args, callback) {
 
       return clean(project, this, ['dist'])
@@ -26,7 +26,7 @@ function task(cli, project) {
             compilePromiseFactories.push(() => compileBrowser(project, this));
           }
 
-          if (args.options.s){
+          if (args.options.serial){
             //run promises in serial
             return compilePromiseFactories.reduce((prior, next) => {
               return prior.then(() => next());

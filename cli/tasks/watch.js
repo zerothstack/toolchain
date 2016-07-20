@@ -14,6 +14,7 @@ function task(cli, project) {
 
   cli.command('watch [command]', 'Start watcher')
     .alias('w')
+    .option('-s, --server-only', `Only run the server (don't compile the browser files)`)
     .validate((args) => {
 
       switch (args.command) {
@@ -35,6 +36,8 @@ function task(cli, project) {
     })
     .action(function (args, callback) {
 
+      console.log(args.options);
+
       switch (args.command) {
         case 'stop':
           runnerRef.emit('quit');
@@ -48,7 +51,7 @@ function task(cli, project) {
         case 'start':
           return clean(project, this, 'lib')
             .then(() => build(project, this, 'server'))
-            .then(() => watchServer(project, this))
+            .then(() => watchServer(project, this, args.options['server-only']))
             .then((runner) => {
               runnerRef = runner;
             });
@@ -57,7 +60,7 @@ function task(cli, project) {
 
 }
 
-function watchServer(project, cli) {
+function watchServer(project, cli, serverOnly) {
 
   return new Promise((resolve, reject) => {
 
@@ -70,16 +73,19 @@ function watchServer(project, cli) {
         project.resolvePath('src/common'),
       ],
       nodeArgs: [
-        // ad-hoc debugging (doesn't allow debugging of bootstrap, but app will run with debugger off)
+        // ad-hoc debugging (doesn't allow debugging of bootstrap, but app will run with debugger
+        // off)
         '--debug=5858',
         // explicit debugging (app won't start until remote debugger connects)
         // '--debug-brk=5858',
-        '--expose_debug_as=v8debug', //required for webstorm due to https://youtrack.jetbrains.com/issue/WEB-21717
+        '--expose_debug_as=v8debug', //required for webstorm due to
+                                     // https://youtrack.jetbrains.com/issue/WEB-21717
       ],
       env: {
         'NODE_ENV': 'development',
         'NODEMON_ENTRYPOINT': project.resolvePath('./dist/server/server/main.js'),
-        'FORCE_COLOR':true // force chalk to detect that colour is supported (it is!)
+        'FORCE_COLOR': true, // force chalk to detect that colour is supported (it is!)
+        'SERVER_ONLY': serverOnly // only watch the server (skip webpack dev server)
       },
       verbose: true
     });
@@ -101,10 +107,10 @@ function watchServer(project, cli) {
     });
 
     runner.on('readable', function () {
-      
+
       this.stdout.on('data', (chunk) => {
         let log = chunk.toString();
-        if (_.includes(log, 'bundle is now VALID')) {
+        if (_.includes(log, 'bundle is now VALID') || serverOnly && _.includes(log, 'Server running at:')) {
           cli.log('Returning control to user');
           resolve(runner);
         }

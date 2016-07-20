@@ -1,16 +1,19 @@
 function task(cli, project) {
 
   cli.command('cli', 'Jumps into runtime cli')
-    .option('-p', '--port', 'Port number', [3001])
-    .option('-h', '--host', 'Host address number', ['localhost'])
+    .option('-p --port <port>', 'Port number', [3001])
+    .option('-h --host <host>', 'Host address number', ['localhost'])
+    .option('-a --auth <credentials>', 'Auth details')
     .action(function (args, callback) {
 
-      const port = args.options.p || 3001;
-      const host = args.options.h || 'localhost';
+      const port = args.options.port || 3001;
+      const host = args.options.host || 'localhost';
 
-      return cli.connect(host, port)
+      return cli.connect(host, port, {
+        auth: args.options.auth,
+      })
         .catch((err) => {
-          this.log('Error connecting to remote cli', err);
+          this.log('Error connecting to remote cli:', err);
           callback();
         });
     });
