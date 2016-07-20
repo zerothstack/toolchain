@@ -78,7 +78,7 @@ function watchServer(project, cli) {
       ],
       env: {
         'NODE_ENV': 'development',
-        'NODEMON_ENTRYPOINT': project.resolvePath('./lib/server/main.js'),
+        'NODEMON_ENTRYPOINT': project.resolvePath('./dist/server/server/main.js'),
         'FORCE_COLOR':true // force chalk to detect that colour is supported (it is!)
       },
       verbose: true

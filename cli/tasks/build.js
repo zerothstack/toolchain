@@ -33,7 +33,7 @@ function build(project, cli, context) {
         config = allConfig;
     }
 
-    const cmd = `tsc -p ${config} --pretty --skipLibCheck`;
+    const cmd = `tsc -p ${config} --pretty --diagnostics`;
     cli.log(cmd);
     const argArray = cmd.split(' ');
 
