@@ -48,7 +48,7 @@ function build(project, cli, context) {
       }
 
       this.log(chalk[color](`typescript compiler exited with code ${code}`));
-      resolve();
+      code === 0 ? resolve() : reject();
     });
 
     compiler.on('error', (code) => {

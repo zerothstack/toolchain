@@ -54,7 +54,7 @@ vantage
     // test if command starts with u or ubiquits,
     // user probably doesn't realise they are already in the shell
     if (args.words.length && ['u', 'ubiquits'].indexOf(args.words[0]) >= 0) {
-      if (args.words.length == 1){
+      if (args.words.length == 1) {
         return cb(chalk.red('You are already in the ubiquits shell!'));
       }
       let start = args.words.shift();
@@ -64,7 +64,8 @@ vantage
     }
 
     this.log(chalk.red(`'${args.words.join(' ')}' is not a valid command.`));
-    cb();
+
+    return Promise.reject('invalid_command');
   });
 
 let project, defaultOnly = true;
@@ -85,7 +86,12 @@ try {
 // Load all the commands registered in the project
 project.loadRegisteredCommands(vantage);
 
-vantage.command('wot m8').hidden().action(function(a, c){this.log(`'R U 'AVIN A GIGGLE, M8?'`);c()});
+vantage.command('wot m8')
+  .hidden()
+  .action(function (a, c) {
+    this.log(`'R U 'AVIN A GIGGLE, M8?'`);
+    c()
+  });
 
 // check if only one arg eg `u` or `ubiquits`
 if (process.argv.length <= 2) { //one arg, drop into shell
@@ -105,7 +111,13 @@ if (process.argv.length <= 2) { //one arg, drop into shell
   }
 
 } else { // more than one arg, just execute the command from the parent shell
-  vantage.parse(process.argv);
+  vantage.exec(process.argv.splice(2).join(' '))
+    .catch((e) => {
+      if (e === 'invalid_command') {
+        return process.exit(127);
+      }
+      return process.exit(1);
+    });
 }
 
 
