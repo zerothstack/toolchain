@@ -15,8 +15,6 @@ function task(cli, project) {
       const port = args.options.port || 3001;
       const host = args.options.host || 'localhost';
 
-      console.log('passing in columns', process.stdout.columns);
-
       return getSignedJwt(this, project, 'admin')
         .then(({jwt, publicKeyPath}) => cli.connect(host, port, {
           jwt,
