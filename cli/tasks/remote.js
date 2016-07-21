@@ -1,17 +1,17 @@
+const {getSignedJwt} = require('./crypto');
+
 function task(cli, project) {
 
-  cli.command('cli', 'Jumps into runtime cli')
+  cli.command('remote', 'Connect to remote server cli')
     .option('-p --port <port>', 'Port number', [3001])
     .option('-h --host <host>', 'Host address number', ['localhost'])
-    .option('-a --auth <credentials>', 'Auth details')
     .action(function (args, callback) {
 
       const port = args.options.port || 3001;
       const host = args.options.host || 'localhost';
 
-      return cli.connect(host, port, {
-        auth: args.options.auth,
-      })
+      return getSignedJwt(this, project, 'admin')
+        .then(({jwt, publicKeyPath}) => cli.connect(host, port, {jwt, publicKeyPath}))
         .catch((err) => {
           this.log('Error connecting to remote cli:', err);
           callback();

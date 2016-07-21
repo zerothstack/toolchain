@@ -50,16 +50,33 @@ function getTour(cli, session) {
       }
     },
     {
-      name: 'Enter runtime cli',
+      name: 'Create RSA key pair for connecting to runtime',
       init: () => {
-        session.log( chalk.inverse.white('Now that the server is running, lets jump into it\'s runtime cli. Type `cli`.'));
+        session.log( chalk.inverse.white('Next we will connect to the running server, but before we do that you will need to create a key pair to authenticate with. ' +
+          'Type `key generate admin`, or if you have already generated keys, type `skip`'));
       },
       onInput: (e, cb) => {
-        if (e === "cli") {
+        if (e === "key generate admin") {
+          session.log(chalk.inverse.green('Your keys have been generated.'));
+          cb();
+        } else if (e === "skip") {
+          cb();
+        } else {
+          session.log(chalk.inverse.yellow("Type `remote` or `skip` to continue the tour"));
+        }
+      }
+    },
+    {
+      name: 'Enter remote runtime cli',
+      init: () => {
+        session.log( chalk.inverse.white('Now that the server is running and we have keys generated to authenticate with, lets jump into it\'s runtime cli. Type `remote`.'));
+      },
+      onInput: (e, cb) => {
+        if (e === "remote") {
           session.log(chalk.inverse.green('This is the CLI for the server runtime'));
           cb();
         } else {
-          session.log(chalk.inverse.yellow("Type `cli` to continue the tour"));
+          session.log(chalk.inverse.yellow("Type `remote` to continue the tour"));
         }
       }
     },

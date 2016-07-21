@@ -11,7 +11,7 @@ function task(cli, project) {
   cli.command('key generate <owner>', 'Generate RSA keys')
     .autocomplete(owners)
     .validate((args) => {
-      if (owners.includes(args.owner)){
+      if (owners.includes(args.owner)) {
         return true;
       }
       return `<owner> must be one of [${owners.join(', ')}]. '${args.owner}' given`;
@@ -29,9 +29,9 @@ function task(cli, project) {
     .action(function (args, callback) {
 
       return getSignedJwt(this, project, args.owner)
-        .then((token) => {
+        .then(({jwt}) => {
           this.log('JWT output follows');
-          this.log(token);
+          this.log(jwt);
         });
 
     });
@@ -115,7 +115,7 @@ function generateKeyPair(cli, password = false, owner = 'server') {
         }
       ])
         .then(({usePassword, password, passwordRepeat}) => {
-          if (!usePassword){
+          if (!usePassword) {
             return false;
           }
 
@@ -175,7 +175,7 @@ function getSignedJwt(cli, project, owner) {
     fs.readFile(paths.private, 'utf8', (error, pem) => {
 
       if (error) {
-        return reject(error);
+        return reject(`Keys do not exist for ${owner}. You will need to run 'key generate ${owner}' to create the key pair`);
       }
 
       return resolve(pem);
@@ -218,7 +218,7 @@ function getSignedJwt(cli, project, owner) {
 
     })
     .then((pem) => {
-      return jwt.sign(
+      const token = jwt.sign(
         {
           username: process.env.USER
         },
@@ -226,8 +226,13 @@ function getSignedJwt(cli, project, owner) {
         {
           algorithm: 'RS256',
         });
+
+      return {
+        jwt:token,
+        publicKeyPath: paths.public.replace(project.basePath, '.')
+      };
     });
 
 }
 
-module.exports = {task};
+module.exports = {task, getSignedJwt};
