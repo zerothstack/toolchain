@@ -3,6 +3,8 @@ const _     = require('lodash');
 
 function task(cli, project) {
 
+
+
   cli.command('tour', 'Runs command tour')
     .hidden()
     .action(function (args, callback) {
@@ -13,6 +15,10 @@ function task(cli, project) {
 
     });
 
+  cli.command('skip')
+    .hidden()
+    .action((a, c) => c());
+
 }
 
 function getTour(cli, session) {
@@ -22,7 +28,7 @@ function getTour(cli, session) {
       name: 'Get help',
       init: () => {
         session.log(chalk.blue('Starting tour. To exit, type `end` at any time'));
-        session.log( chalk.inverse.white('To start with, type `help` to see what commands are available'));
+        session.log(chalk.inverse.white('To start with, type `help` to see what commands are available'));
       },
       onInput: (e, cb) => {
         if (e === "help") {
@@ -36,7 +42,7 @@ function getTour(cli, session) {
     {
       name: 'Start server and watch files for changes',
       init: () => {
-        session.log( chalk.inverse.white('Now lets start the project running. Type `watch`.'));
+        session.log(chalk.inverse.white('Now lets start the project running. Type `watch`.'));
       },
       onInput: (e, cb) => {
         if (e === "watch") {
@@ -52,14 +58,12 @@ function getTour(cli, session) {
     {
       name: 'Create RSA key pair for connecting to runtime',
       init: () => {
-        session.log( chalk.inverse.white('Next we will connect to the running server, but before we do that you will need to create a key pair to authenticate with. ' +
+        session.log(chalk.inverse.white('Next we will connect to the running server, but before we do that you will need to create a key pair to authenticate with. ' +
           'Type `key generate admin`, or if you have already generated keys, type `skip`'));
       },
       onInput: (e, cb) => {
         if (e === "key generate admin") {
           session.log(chalk.inverse.green('Your keys have been generated.'));
-          cb();
-        } else if (e === "skip") {
           cb();
         } else {
           session.log(chalk.inverse.yellow("Type `remote` or `skip` to continue the tour"));
@@ -69,7 +73,7 @@ function getTour(cli, session) {
     {
       name: 'Enter remote runtime cli',
       init: () => {
-        session.log( chalk.inverse.white('Now that the server is running and we have keys generated to authenticate with, lets jump into it\'s runtime cli. Type `remote`.'));
+        session.log(chalk.inverse.white('Now that the server is running and we have keys generated to authenticate with, lets jump into it\'s runtime cli. Type `remote`.'));
       },
       onInput: (e, cb) => {
         if (e === "remote") {
@@ -83,7 +87,7 @@ function getTour(cli, session) {
     {
       name: 'Get help for runtime',
       init: () => {
-        session.log( chalk.inverse.white('Type `help` to see the new set of options that are available at runtime.'));
+        session.log(chalk.inverse.white('Type `help` to see the new set of options that are available at runtime.'));
       },
       onInput: (e, cb) => {
         if (e === "help") {
@@ -97,7 +101,7 @@ function getTour(cli, session) {
     {
       name: 'Output registered routes',
       init: () => {
-        session.log( chalk.inverse.white('Type `routes` to see a table of routes that have been registered'));
+        session.log(chalk.inverse.white('Type `routes` to see a table of routes that have been registered'));
       },
       onInput: (e, cb) => {
         if (e === "routes") {
@@ -110,7 +114,7 @@ function getTour(cli, session) {
     {
       name: 'Exit back to toolchain cli',
       init: () => {
-        session.log( chalk.inverse.white('To exit the server runtime, type `exit`'));
+        session.log(chalk.inverse.white('To exit the server runtime, type `exit`'));
       },
       onInput: (e, cb) => {
         if (e === "exit") {
@@ -123,7 +127,7 @@ function getTour(cli, session) {
     {
       name: 'Start documentation watcher',
       init: () => {
-        session.log( chalk.inverse.white('Now to the documentation generator. Type `doc watch` to start the watchers'));
+        session.log(chalk.inverse.white('Now to the documentation generator. Type `doc watch` to start the watchers'));
       },
       onInput: (e, cb) => {
         if (e === "doc watch") {
@@ -136,7 +140,7 @@ function getTour(cli, session) {
     },
     {
       init: () => {
-        session.log( chalk.inverse.white('That\'s it for the tour, over to you to explore and discover the other commands like `test`'));
+        session.log(chalk.inverse.white('That\'s it for the tour, over to you to explore and discover the other commands like `test`'));
       }
     }
   ]);
@@ -171,7 +175,7 @@ function makeListener(steps, stack, cli, session) {
   }, 'Tour Checklist:\n');
 
   session.log(checklist);
-  
+
   step.init();
 
   let listener = (e) => {
@@ -188,13 +192,21 @@ function makeListener(steps, stack, cli, session) {
         return;
       }
 
+      if (e.command == 'skip') {
+        cli.removeListener(`client_command_executed`, stack[stack.length - 1]);
+        if (steps.length > stack.length) {
+          makeListener(steps, stack, cli, session);
+        }
+        return;
+      }
+
       step.onInput(e.command, () => {
         cli.removeListener(`client_command_executed`, stack[stack.length - 1]);
         if (steps.length > stack.length) {
           makeListener(steps, stack, cli, session);
         }
       });
-      
+
     } else {
       cli.removeListener(`client_command_executed`, stack[stack.length - 1]);
       if (steps.length > stack.length) {
