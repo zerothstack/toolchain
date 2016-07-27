@@ -8,47 +8,53 @@ const Webpack = require('webpack');
 
 const bootstrap = require(process.env.NODEMON_ENTRYPOINT).default;
 
-module.exports = bootstrap().then(({server, logger}) => {
+module.exports = bootstrap()
+  .then(({server, logger}) => {
 
-  const config   = require('../browser/webpack.dev.js');
-  const compiler = new Webpack(config);
+    let livereloadDriver;
 
-  const assets = {
-    // webpack-dev-middleware options
-    // See https://github.com/webpack/webpack-dev-middleware
-    historyApiFallback: true,
-    stats: 'minimal'
-  };
+    const serverType = server.constructor.name;
 
-  config.entry.app.unshift(require.resolve('webpack-dev-server/client/index.js') + '?http://localhost:3000/');
+    logger.info(`registering [${serverType}] driver`);
 
-  let livereloadDriver;
+    switch (serverType) {
+      case 'HapiServer':
+        livereloadDriver = require('./hapiLivereload');
+        break;
+      case 'ExpressServer':
+        livereloadDriver = require('./expressLivereload');
+        break;
+      default:
+        throw new Error(`Unrecognised server type [${serverType}]`);
+    }
 
-  const serverType = server.constructor.name;
+    if (process.env.SERVER_ONLY !== 'true') {
 
-  logger.info(`registering [${serverType}] driver`);
+      logger.info('Starting webpack dev server');
 
-  switch (serverType) {
-    case 'HapiServer':
-      livereloadDriver = require('./hapiLivereload');
-      break;
-    case 'ExpressServer':
-      livereloadDriver = require('./expressLivereload');
-      break;
-    default:
-      throw new Error(`Unrecognised server type [${serverType}]`);
-  }
+      const config   = require('../browser/webpack.dev.js');
+      const compiler = new Webpack(config);
 
-  livereloadDriver.registerLivereload(server.getEngine(), compiler, assets);
+      const assets = {
+        // webpack-dev-middleware options
+        // See https://github.com/webpack/webpack-dev-middleware
+        historyApiFallback: true,
+        stats: 'minimal'
+      };
 
-  websocketServer(compiler)
-    .installHandlers(server.getHttpServer(), {prefix: '/sockjs-node'});
+      config.entry.app.unshift(require.resolve('webpack-dev-server/client/index.js') + '?http://localhost:3000/');
 
-  return server.start()
-    .then(() => {
-      logger.info('Server running at:', server.getHost());
-      return server;
-    });
+      livereloadDriver.registerLivereload(server.getEngine(), compiler, assets);
 
-});
+      websocketServer(compiler)
+        .installHandlers(server.getHttpServer(), {prefix: '/sockjs-node'});
+    }
+
+    return server.start()
+      .then(() => {
+        logger.info('Server running at:', server.getHost());
+        return server;
+      });
+
+  });
 

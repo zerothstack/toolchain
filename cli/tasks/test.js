@@ -17,7 +17,7 @@ const {clean} = require('./clean');
 function task(cli, project) {
 
   cli.command('test [environment]', 'Run tests')
-    .option('-s', '--serial', 'Run environments in serial (default is parallel)')
+    .option('-s, --serial', 'Run environments in serial (default is parallel)')
     .action(function (args, callback) {
 
       return clean(project, this, ['coverage', 'dist'])
@@ -35,7 +35,7 @@ function task(cli, project) {
             testPromiseFactories.push(() => testBrowser(project, this));
           }
 
-          if (args.options.s) {
+          if (args.options.serial) {
             //run promises in serial
             return testPromiseFactories.reduce((prior, next) => {
               return prior.then(() => next());
