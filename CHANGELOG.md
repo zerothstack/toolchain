@@ -1,3 +1,22 @@
+<a name="0.3.0"></a>
+# [0.3.0](https://github.com/ubiquits/toolchain/compare/v0.2.4...v0.3.0) (2016-07-27)
+
+
+### Bug Fixes
+
+* **remote conn:** Stop server key generation prompting for password ([1ece880](https://github.com/ubiquits/toolchain/commit/1ece880))
+
+
+### Features
+
+* **connection:** Implement basic remote connection passthrough of credentials, add option to skip browser compilation, ([9dfd210](https://github.com/ubiquits/toolchain/commit/9dfd210))
+* **crypto:** Completed implementation of password prompting for key generation and jwt signing ([0acdadd](https://github.com/ubiquits/toolchain/commit/0acdadd))
+* **crypto:** Implement key generation and jwt signing ([b965d16](https://github.com/ubiquits/toolchain/commit/b965d16))
+* **crypto:** Implemented passthrough of jwt for authentication, added key generation to the quickstart tour ([fe10440](https://github.com/ubiquits/toolchain/commit/fe10440))
+* **remote conn:** Add ability for tour to skip, pass through terminal column width to server ([642ddd2](https://github.com/ubiquits/toolchain/commit/642ddd2))
+
+
+
 <a name="0.2.4"></a>
 ## [0.2.4](https://github.com/ubiquits/toolchain/compare/v0.2.3...v0.2.4) (2016-07-20)
 
