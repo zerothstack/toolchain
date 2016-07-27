@@ -66,7 +66,7 @@ function generateKeyPair(cli, password = false, owner = 'server') {
 
   return Promise.resolve(password)
     .then((password) => {
-      if (!!password) {
+      if (!!password || owner == 'server') {
         return password;
       }
 
