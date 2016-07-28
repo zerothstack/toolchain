@@ -1,3 +1,13 @@
+<a name="0.3.1"></a>
+## [0.3.1](https://github.com/ubiquits/toolchain/compare/v0.3.0...v0.3.1) (2016-07-28)
+
+
+### Bug Fixes
+
+* **tsdoc:** Fix tsdoc not working with ts[@2](https://github.com/2).0.0 ([e8a228c](https://github.com/ubiquits/toolchain/commit/e8a228c))
+
+
+
 <a name="0.3.0"></a>
 # [0.3.0](https://github.com/ubiquits/toolchain/compare/v0.2.4...v0.3.0) (2016-07-27)
 
