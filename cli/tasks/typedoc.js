@@ -37,13 +37,16 @@ function buildTypedoc(project, cli) {
       readme: 'none',
       theme: path.resolve(__dirname, '../..', 'docs/api'),
       // plugins: ["my", "plugins"],
-      // ignoreCompilerErrors: false,
+      ignoreCompilerErrors: true, //@todo remove when tsdoc properly supports ts@2.0
       version: true,
     });
 
+    // remove sourceRoot as it breaks tsdoc for some reason
+    delete config.sourceRoot;
+
     project.gulp
-      .src([].concat(project.paths.source.all.ts, project.paths.source.all.definitions, ['!**/*.spec.ts']))
-      .pipe(plumber(resolve))
+      .src(["src/**/*.ts", '!**/*.spec.ts'])
+      .pipe(plumber(reject))
       .pipe(typedoc(_.omit(config, [
         'sourceMap',
         'removeComments',
