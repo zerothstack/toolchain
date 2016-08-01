@@ -1,3 +1,13 @@
+<a name="0.3.2"></a>
+## [0.3.2](https://github.com/ubiquits/toolchain/compare/v0.3.1...v0.3.2) (2016-08-01)
+
+
+### Bug Fixes
+
+* **compile:** Temporarily suppress sourcemap output in compile ([7e4b1cd](https://github.com/ubiquits/toolchain/commit/7e4b1cd))
+
+
+
 <a name="0.3.1"></a>
 ## [0.3.1](https://github.com/ubiquits/toolchain/compare/v0.3.0...v0.3.1) (2016-07-28)
 
