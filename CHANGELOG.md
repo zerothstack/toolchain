@@ -1,3 +1,13 @@
+<a name="0.3.3"></a>
+## [0.3.3](https://github.com/ubiquits/toolchain/compare/v0.3.2...v0.3.3) (2016-08-03)
+
+
+### Bug Fixes
+
+* **init:** Add validation to initialization of project name to ensure compatibility with package.json naming conventions ([d9d0d9b](https://github.com/ubiquits/toolchain/commit/d9d0d9b))
+
+
+
 <a name="0.3.2"></a>
 ## [0.3.2](https://github.com/ubiquits/toolchain/compare/v0.3.1...v0.3.2) (2016-08-01)
 
