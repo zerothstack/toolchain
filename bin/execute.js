@@ -1,6 +1,6 @@
 #! /usr/bin/env node
 
-const vantage = require('@xiphiaz/vantage')();
+const vantage = require('vantage')();
 const path    = require('path');
 const fs      = require('fs');
 const chalk   = require('chalk');

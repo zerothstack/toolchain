@@ -1,10 +1,11 @@
-const path     = require('path');
-const fs       = require('fs-extra');
-const chalk    = require('chalk');
-const git      = require('nodegit');
-const init     = require('init-package-json');
-const vinylFs  = require('vinyl-fs');
-const filesize = require('filesize');
+const path                = require('path');
+const fs                  = require('fs-extra');
+const chalk               = require('chalk');
+const git                 = require('nodegit');
+const init                = require('init-package-json');
+const validatePackageName = require('validate-npm-package-name');
+const vinylFs             = require('vinyl-fs');
+const filesize            = require('filesize');
 const {spawn}  = require('child_process');
 const {getTour}  = require('./tour');
 
@@ -75,11 +76,11 @@ function task(cli, project) {
 
 }
 
-function copyDotfile(){
+function copyDotfile() {
   return new Promise((resolve, reject) => {
 
     fs.copy('.env.example', '.env', (err) => {
-      if (err){
+      if (err) {
         reject(err);
       }
       resolve();
@@ -253,7 +254,20 @@ function getProjectConfig(cli, forceDefaults, gitConf) {
       name: 'projectName',
       type: 'input',
       default: defaults.projectName,
-      message: `What is your project called?`
+      message: `What is your project called?`,
+      validate: (input) => {
+        const valid = validatePackageName(input);
+
+        if (valid.validForNewPackages){
+          return true;
+        }
+
+        //temporary until vorpal is fixed to show validation errors from inquirer
+        cli.log(chalk.red(valid.errors[0]));
+        return false;
+        // when vorpal can display errors correctly uncomment the following and remove the cli.log call
+        // return valid.errors[0];
+      }
     },
     {
       name: 'keywords',
