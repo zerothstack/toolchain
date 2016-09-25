@@ -81,37 +81,39 @@ function testServer(project, cli) {
 
     const config = {
       source: [
+        path.resolve(__dirname, '../..', 'browser/test-shim.js'),
         project.paths.destination.server + '/**/*.js',
         '!' + project.paths.destination.server + '/**/bootstrap.js'
       ],
       coverage: project.paths.destination.coverage + '/server/js'
     };
 
-    cli.log('Testing server');
-
-    Error.stackTraceLimit = Infinity;
-
-    require('core-js');
-    require('reflect-metadata');
-    require('zone.js/dist/zone-node');
-    require('zone.js/dist/async-test');
-
     project.gulp.src(config.source, {cwd: project.basePath})
       .pipe(plumber(reject))
+      // .pipe(tap((file, t) => {
+      //   console.log(file.path);
+      // }))
       // Run specs
       .pipe(jasmine({
           verbose: true,
-          reporter: new SpecReporter({
-            displayFailuresSummary: false
-          })
+          // reporter: new SpecReporter({
+          //   displayFailuresSummary: false
+          // })
         })
       )
       // Creating the reports after tests ran
-      .pipe(istanbul.writeReports({
-        dir: config.coverage,
-        reporters: ['json']
-      }))
-      .on('end', resolve);
+      // .pipe(istanbul.writeReports({
+      //   dir: config.coverage,
+      //   reporters: ['json']
+      // }))
+      .on('end', () => {
+        console.log(' end called');
+      })
+      .on('jasmineDone', () => {
+        console.log('jasmine done called');
+        resolve();
+      });
+
   });
 }
 

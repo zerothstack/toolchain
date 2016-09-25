@@ -47,12 +47,12 @@ function build(project, cli, context) {
         color = 'green';
       }
 
-      this.log(chalk[color](`typescript compiler exited with code ${code}`));
+      cli.log(chalk[color](`typescript compiler exited with code ${code}`));
       code === 0 ? resolve() : reject();
     });
 
     compiler.on('error', (code) => {
-      this.log(chalk.red(`Failed to run '${args}'.\n${code}`));
+      cli.log(chalk.red(`Failed to run '${args}'.\n${code}`));
       reject();
     });
 
