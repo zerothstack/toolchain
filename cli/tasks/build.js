@@ -2,7 +2,10 @@ const sourcemaps = require('gulp-sourcemaps');
 const merge2     = require('merge2');
 const chalk      = require('chalk');
 var spawn        = require('child_process').spawn;
-const fs       = require('fs-extra');
+const babel      = require('gulp-babel');
+const plumber      = require('gulp-plumber');
+const fs         = require('fs-extra');
+const preset2015 = require('babel-preset-es2015');
 
 const {clean} = require('./clean');
 
@@ -48,7 +51,37 @@ function build(project, cli, context) {
       }
 
       cli.log(chalk[color](`typescript compiler exited with code ${code}`));
-      code === 0 ? resolve() : reject();
+
+      if (code !== 0) {
+        return reject(code);
+      }
+
+      /**
+       * Begin ES6 transpilation hack
+       * This is a hack to deal with the breaking change in the DI which does not allow for the use
+       * of ES6 classes. When the issue is resolved, remove the following section and just resolve()
+       * @see https://github.com/angular/angular/issues/7740
+       */
+      const configJson = require(config);
+
+      const compileTarget = configJson.compilerOptions.outDir+'/**/*.js';
+      cli.log(`transpiling files with babel (TEMPORARY). [${project.basePath}/${compileTarget}]`);
+
+      project.gulp.src(compileTarget, {cwd: project.basePath})
+        .pipe(plumber(reject))
+        .pipe(babel({
+          presets: [preset2015]
+        }))
+        .pipe(project.gulp.dest(data => data.base)) // replace original file
+        .on('end', () => {
+          cli.log(`transpilation complete`);
+          resolve();
+        });
+
+      /**
+       * End ES6 transpilation hack
+       */
+
     });
 
     compiler.on('error', (code) => {

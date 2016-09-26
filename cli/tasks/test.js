@@ -96,16 +96,16 @@ function testServer(project, cli) {
       // Run specs
       .pipe(jasmine({
           verbose: true,
-          // reporter: new SpecReporter({
-          //   displayFailuresSummary: false
-          // })
+          reporter: new SpecReporter({
+            displayFailuresSummary: false
+          })
         })
       )
       // Creating the reports after tests ran
-      // .pipe(istanbul.writeReports({
-      //   dir: config.coverage,
-      //   reporters: ['json']
-      // }))
+      .pipe(istanbul.writeReports({
+        dir: config.coverage,
+        reporters: ['json']
+      }))
       .on('end', () => {
         console.log(' end called');
       })
