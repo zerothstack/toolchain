@@ -1,6 +1,6 @@
 {
   "name": "@ubiquits/toolchain",
-  "version": "0.3.3",
+  "version": "1.0.0-0",
   "description": "Toolchain for ubiquits projects, modules & core",
   "main": "index.js",
   "preferGlobal": true,
@@ -121,6 +121,5 @@
     "gulp-jasmine-node": "^1.0.7",
     "mocha": "^2.5.3"
   },
-  "peerDependencies": {
-  }
+  "peerDependencies": {}
 }
