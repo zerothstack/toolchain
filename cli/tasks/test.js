@@ -32,7 +32,7 @@ function task(cli, project) {
           }
 
           if (!args.environment || args.environment == 'browser') {
-            testPromiseFactories.push(() => testBrowser(project, this));
+            testPromiseFactories.unshift(() => testBrowser(project, this));
           }
 
           if (args.options.serial) {
