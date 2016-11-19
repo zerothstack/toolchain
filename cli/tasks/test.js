@@ -25,21 +25,30 @@ function task(cli, project) {
           let testPromiseFactories = [];
 
           if (!args.environment || args.environment == 'server') {
-            let serverTest = build(project, this, 'server')
-              .then(() => instrumentServer(project, this))
-              .then(() => testServer(project, this));
-            testPromiseFactories.push(() => serverTest);
+            testPromiseFactories.push(() => {
+              return build(project, this, 'server')
+                .then(() => instrumentServer(project, this))
+                .then(() => testServer(project, this))
+                .then(() => 'server test completed');
+            });
           }
 
           if (!args.environment || args.environment == 'browser') {
-            testPromiseFactories.unshift(() => testBrowser(project, this));
+            testPromiseFactories.unshift(() => {
+              return testBrowser(project, this)
+                .then(() => 'browser test completed');
+            });
           }
 
           if (args.options.serial) {
+            cli.log('running tests in serial');
             //run promises in serial
             return testPromiseFactories.reduce((prior, next) => {
-              return prior.then(() => next());
-            }, Promise.resolve()); // initial
+              return prior.then((cliOut) => {
+                cli.log(cliOut);
+                return next();
+              });
+            }, Promise.resolve('init')); // initial
           }
 
           return Promise.all(testPromiseFactories.map(pf => pf()));
@@ -92,7 +101,7 @@ function testServer(project, cli) {
     project.gulp.src(config.source, {cwd: project.basePath})
       .pipe(plumber(reject))
       // .pipe(tap((file, t) => {
-      //   console.log(file.path);
+      //   cli.log(file.path);
       // }))
       // Run specs
       .pipe(jasmine({
@@ -103,7 +112,7 @@ function testServer(project, cli) {
         })
       )
       // .on('jasmineDone', () => {
-      //   console.log('jasmine done called');
+      //   cli.log('jasmine done called');
       //
       //   // istanbul.writeReports({
       //   //   dir: config.coverage,
@@ -119,11 +128,11 @@ function testServer(project, cli) {
         reporters: ['json']
       }))
       .on('end', () => {
-        console.log(' end called');
+        cli.log(' end called');
         resolve();
       })
       // .on('jasmineDone', () => {
-      //   console.log('jasmine done called');
+      //   cli.log('jasmine done called');
       //   resolve();
       // });
 
