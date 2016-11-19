@@ -81,8 +81,9 @@ function testServer(project, cli) {
 
     const config = {
       source: [
-        path.resolve(__dirname, '../..', 'browser/test-shim.js'),
+        path.resolve(__dirname, '../..', 'server/testShim.js'),
         project.paths.destination.server + '/**/*.js',
+        project.paths.destination.common + '/**/*.js',
         '!' + project.paths.destination.server + '/**/bootstrap.js'
       ],
       coverage: project.paths.destination.coverage + '/server/js'
@@ -101,18 +102,30 @@ function testServer(project, cli) {
           })
         })
       )
-      // Creating the reports after tests ran
+      // .on('jasmineDone', () => {
+      //   console.log('jasmine done called');
+      //
+      //   // istanbul.writeReports({
+      //   //   dir: config.coverage,
+      //   //   reporters: ['json']
+      //   // })
+      //
+      //   // resolve();
+      //
+      // })
+      // // Creating the reports after tests ran
       .pipe(istanbul.writeReports({
         dir: config.coverage,
         reporters: ['json']
       }))
       .on('end', () => {
         console.log(' end called');
-      })
-      .on('jasmineDone', () => {
-        console.log('jasmine done called');
         resolve();
-      });
+      })
+      // .on('jasmineDone', () => {
+      //   console.log('jasmine done called');
+      //   resolve();
+      // });
 
   });
 }

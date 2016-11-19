@@ -38,7 +38,7 @@ module.exports = {
         loader: 'null'
       },
       {
-        test: /karma-test-shim\.js$/,
+        test: /karmaTestShim\.js$/,
         loader: 'string-replace',
         query: {
           search: '%working-dir%',
