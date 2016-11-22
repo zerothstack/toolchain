@@ -1,3 +1,14 @@
+<a name="2.0.1-1"></a>
+## [2.0.1-1](https://github.com/ubiquits/toolchain/compare/v2.0.1-0...v2.0.1-1) (2016-11-22)
+
+
+### Bug Fixes
+
+* **tests:** Fixed importing of main files into server tests, fixed css loading failing angular tests ([14d5e20](https://github.com/ubiquits/toolchain/commit/14d5e20))
+* **tests:** Use absolute path to mocha bin ([cb2b441](https://github.com/ubiquits/toolchain/commit/cb2b441))
+
+
+
 <a name="2.0.1-0"></a>
 ## [2.0.1-0](https://github.com/ubiquits/toolchain/compare/v2.0.0-0...v2.0.1-0) (2016-11-19)
 
