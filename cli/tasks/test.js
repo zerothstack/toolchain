@@ -93,7 +93,8 @@ function testServer(project, cli) {
         path.resolve(__dirname, '../..', 'server/testShim.js'),
         project.paths.destination.server + '/**/*.js',
         project.paths.destination.common + '/**/*.js',
-        '!' + project.paths.destination.server + '/**/bootstrap.js'
+        '!' + project.paths.destination.server + '/**/bootstrap.js',
+        '!' + project.paths.destination.server + '/**/main.js'
       ],
       coverage: project.paths.destination.coverage + '/server/js'
     };

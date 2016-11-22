@@ -35,7 +35,7 @@ module.exports = {
       },
       {
         test: /\.css$/,
-        loader: 'null'
+        loader: 'raw'
       },
       {
         test: /karmaTestShim\.js$/,
