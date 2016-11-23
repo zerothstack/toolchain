@@ -1,3 +1,41 @@
+<a name="2.0.1-1"></a>
+## [2.0.1-1](https://github.com/ubiquits/toolchain/compare/v2.0.1-0...v2.0.1-1) (2016-11-22)
+
+
+### Bug Fixes
+
+* **tests:** Fixed importing of main files into server tests, fixed css loading failing angular tests ([14d5e20](https://github.com/ubiquits/toolchain/commit/14d5e20))
+* **tests:** Use absolute path to mocha bin ([cb2b441](https://github.com/ubiquits/toolchain/commit/cb2b441))
+
+
+
+<a name="2.0.1-0"></a>
+## [2.0.1-0](https://github.com/ubiquits/toolchain/compare/v2.0.0-0...v2.0.1-0) (2016-11-19)
+
+
+
+<a name="2.0.0-0"></a>
+# [2.0.0-0](https://github.com/ubiquits/toolchain/compare/v1.0.0-0...v2.0.0-0) (2016-11-19)
+
+
+### Bug Fixes
+
+* **test:** Fixed tests running in parallel ([0aa428f](https://github.com/ubiquits/toolchain/commit/0aa428f))
+
+
+
+<a name="1.0.0-0"></a>
+# [1.0.0-0](https://github.com/ubiquits/toolchain/compare/v0.3.3...v1.0.0-0) (2016-11-19)
+
+
+### Bug Fixes
+
+* **tests:** Switched order of unified tests due to karma bug ([5b4538e](https://github.com/ubiquits/toolchain/commit/5b4538e))
+* **upgrade:** Added babel compilation to deal with the regression in angular injector ([61f2ab1](https://github.com/ubiquits/toolchain/commit/61f2ab1))
+* **upgrade:** Unified casing of test shims, removed babel transpilation hack, renamed tsconfig base to remove .all, removed testbed bootstrapping, added inclusion of common specs to server scope, ([975a2bd](https://github.com/ubiquits/toolchain/commit/975a2bd))
+
+
+
 <a name="0.3.3"></a>
 ## [0.3.3](https://github.com/ubiquits/toolchain/compare/v0.3.2...v0.3.3) (2016-08-03)
 
