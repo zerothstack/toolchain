@@ -11,7 +11,7 @@ const {getTour}  = require('./tour');
 
 function task(cli, project) {
 
-  cli.command('init', 'Initializes new Ubiquits project')
+  cli.command('init', 'Initializes new Zeroth project')
     .option('-c, --confirm', 'Confirm with the user if they want to initialize a new project')
     .option('-y, --yes', 'Accept all defaults')
     .option('-s, --skip-install', 'Skip installation')
@@ -62,7 +62,7 @@ function task(cli, project) {
 
         })
         .then(() => copyDotfile())
-        .then(() => commitChanges(this, repo, `Initial commit of Ubiquits framework`, configResponses))
+        .then(() => commitChanges(this, repo, `Initial commit of Zeroth framework`, configResponses))
         .then(() => installDependencies(this, skipInstall))
         .then(() => !skipTour && runTour(this, cli))
         .catch(e => {
@@ -141,7 +141,7 @@ function commitChanges(cli, repo, commitMessage, configResponses) {
       cli.log(`committing`);
       let author = git.Signature.default(repo);
       if (!author || !author.email) {
-        const fallbackEmail = configResponses.email || 'committer@ubiquits.com';
+        const fallbackEmail = configResponses.email || 'committer@zeroth.io';
         const fallbackUser  = configResponses.name || 'Committer Bot';
         cli.log(`default committer not found, using fallback details (${fallbackUser}:${fallbackEmail})`);
         author = git.Signature.now(fallbackUser, fallbackEmail);
@@ -169,7 +169,7 @@ function cloneQuickstart(cli) {
   const tmpDest = cwd + '/_tmp_quickstart';
 
   fs.emptyDirSync(tmpDest);
-  return git.Clone("https://github.com/ubiquits/quickstart.git", tmpDest, {
+  return git.Clone("https://github.com/zerothstack/quickstart.git", tmpDest, {
     fetchOpts: {
       callbacks: {
         // github will fail cert check on some OSX machines this overrides that check
@@ -235,7 +235,7 @@ function getProjectConfig(cli, forceDefaults, gitConf) {
 
   const defaults = {
     projectName: path.basename(process.cwd()),
-    keywords: 'ubiquits',
+    keywords: 'zeroth',
     name: gitConf.then(config => config.getString("user.name"))
       .catch(() => ''),
     description: "Test project",

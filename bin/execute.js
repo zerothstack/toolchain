@@ -5,7 +5,7 @@ const path    = require('path');
 const fs      = require('fs');
 const chalk   = require('chalk');
 
-const {UbiquitsProject} = require('../project');
+const {ZerothProject} = require('../project');
 const banner = require('../cli/banner.js');
 
 // extend the logger to prefix [<task>]
@@ -24,16 +24,16 @@ vantage.ui.log           = function (...args) {
   originalSessionLog.apply(this, args);
 };
 
-// extend the logger to prefix [ubiquits] when not in a task
+// extend the logger to prefix [zeroth] when not in a task
 const originalLog = vantage.log;
 vantage.log       = function (...args) {
-  args.unshift(chalk.white('[' + chalk.cyan('ubiquits') + ']'));
+  args.unshift(chalk.white('[' + chalk.cyan('zeroth') + ']'));
   originalLog.apply(this, args);
 };
 
 // define the delimiter
 vantage
-  .delimiter(chalk.green('ubiquits~$'));
+  .delimiter(chalk.green('zeroth~$'));
 
 // catch any invalid commands
 vantage
@@ -51,14 +51,14 @@ vantage
       return cb();
     }
 
-    // test if command starts with u or ubiquits,
+    // test if command starts with u or zeroth,
     // user probably doesn't realise they are already in the shell
-    if (args.words.length && ['u', 'ubiquits'].indexOf(args.words[0]) >= 0) {
+    if (args.words.length && ['u', 'zeroth'].indexOf(args.words[0]) >= 0) {
       if (args.words.length == 1) {
-        return cb(chalk.red('You are already in the ubiquits shell!'));
+        return cb(chalk.red('You are already in the zeroth shell!'));
       }
       let start = args.words.shift();
-      this.log(chalk.yellow(`You are already in the ubiquits shell - you don't need to prefix your commands with '${start}'`));
+      this.log(chalk.yellow(`You are already in the zeroth shell - you don't need to prefix your commands with '${start}'`));
       vantage.exec(args.words.join(' '));
       return cb();
     }
@@ -71,16 +71,16 @@ vantage
 let project, defaultOnly = true;
 // try to retrieve the user's configured project
 try {
-  project     = require(process.cwd() + '/ubiquits.js');
+  project     = require(process.cwd() + '/zeroth.js');
   defaultOnly = false
 } catch (e) {
   // file missing
   if (e.code !== 'MODULE_NOT_FOUND') {
-    vantage.log(chalk.red('Error found in your ubiquits.js file:'));
+    vantage.log(chalk.red('Error found in your zeroth.js file:'));
     throw e;
   }
   //create local project as fallback
-  project = new UbiquitsProject(process.cwd());
+  project = new ZerothProject(process.cwd());
 }
 
 // Load all the commands registered in the project
@@ -93,7 +93,7 @@ vantage.command('wot m8')
     c()
   });
 
-// check if only one arg eg `u` or `ubiquits`
+// check if only one arg eg `u` or `zeroth`
 if (process.argv.length <= 2) { //one arg, drop into shell
 
   vantage.show();
@@ -106,7 +106,7 @@ if (process.argv.length <= 2) { //one arg, drop into shell
   if (!fs.readdirSync(process.cwd()).length) {
     vantage.exec('init -c');
   } else {
-    defaultOnly && vantage.log(chalk.yellow(`Local ubiquits.js not found, only default commands will be available`));
+    defaultOnly && vantage.log(chalk.yellow(`Local zeroth.js not found, only default commands will be available`));
     vantage.log(chalk.blue(`Loaded ${project.commandRegistry.length} commands. Type 'help' to see available commands`));
   }
 

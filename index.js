@@ -1,3 +1,3 @@
-let {UbiquitsProject} = require('./project');
+let {ZerothProject} = require('./project');
 
-module.exports = {UbiquitsProject};
+module.exports = {ZerothProject};

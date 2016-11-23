@@ -6,7 +6,7 @@ const gulp  = require('gulp');
 const fs    = require('fs');
 const chalk = require('chalk');
 
-class UbiquitsProject {
+class ZerothProject {
 
   constructor(basePath) {
 
@@ -74,7 +74,7 @@ class UbiquitsProject {
   /**
    * Configure the deployment options
    * @param config
-   * @returns {UbiquitsProject}
+   * @returns {ZerothProject}
    */
   configureDeployment(config) {
     this.deploymentConfig = _.merge(this.deploymentConfig, config);
@@ -84,7 +84,7 @@ class UbiquitsProject {
   /**
    * Configure the paths
    * @param config
-   * @returns {UbiquitsProject}
+   * @returns {ZerothProject}
    */
   configurePaths(config) {
     this.paths = _.merge(this.paths, config);
@@ -94,7 +94,7 @@ class UbiquitsProject {
   /**
    * Configure Documentation options
    * @param config
-   * @returns {UbiquitsProject}
+   * @returns {ZerothProject}
    */
   configureDocs(config){
     this.docsConfig = _.merge(this.paths, config);
@@ -104,7 +104,7 @@ class UbiquitsProject {
   /**
    * Configure Social options
    * @param config
-   * @returns {UbiquitsProject}
+   * @returns {ZerothProject}
    */
   configureSocial(config){
     this.socialConfig = _.merge(this.socialConfig, config);
@@ -114,7 +114,7 @@ class UbiquitsProject {
   /**
    * Register a single command
    * @param commandRegisterFn
-   * @returns {UbiquitsProject}
+   * @returns {ZerothProject}
    */
   registerCommand(commandRegisterFn) {
     this.commandRegistry.push(commandRegisterFn);
@@ -151,7 +151,7 @@ class UbiquitsProject {
    * Read tasks from the task dir then iterate over all commands,
    * invoking them with vantage and this project instance
    * @param vorpal
-   * @returns {UbiquitsProject}
+   * @returns {ZerothProject}
    */
   loadRegisteredCommands(vantage) {
 
@@ -177,4 +177,4 @@ class UbiquitsProject {
 
 }
 
-module.exports = {UbiquitsProject};
+module.exports = {ZerothProject};

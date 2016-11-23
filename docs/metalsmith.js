@@ -179,8 +179,8 @@ function config(pathConfig, meta, watching) {
 
   let metalsmith = Metalsmith(pathConfig.base)
     .metadata({
-      title: "Ubiquits",
-      description: "Documentation for the Ubiquits framework",
+      title: "Zeroth",
+      description: "Documentation for the Zeroth framework",
     })
     .clean(true);
 

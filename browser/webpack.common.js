@@ -20,7 +20,7 @@ const globals = _.reduce(allVars, (exportVars, value, key) => {
 console.log('exporting vars', globals);
 
 module.exports = {
-  // @todo refactor to use paths defined in tasks.js (class UbiquitsProject)
+  // @todo refactor to use paths defined in tasks.js (class ZerothProject)
   entry: {
     'polyfills': './src/browser/polyfills.ts',
     'vendor': './src/browser/vendor.ts',
@@ -78,7 +78,7 @@ module.exports = {
     new webpack.optimize.CommonsChunkPlugin({
       name: ['app', 'common', 'vendor', 'polyfills']
     }),
-    // @todo refactor to use paths defined in tasks.js (class UbiquitsProject)
+    // @todo refactor to use paths defined in tasks.js (class ZerothProject)
     new HtmlWebpackPlugin({
       template: 'src/browser/index.html'
     }),

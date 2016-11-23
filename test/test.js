@@ -27,7 +27,7 @@ function runCommand(command, cb){
 describe('Initialization', () => {
 
   before((done) => {
-    runCommand('ubiquits init -y', done);
+    runCommand('zeroth init -y', done);
   });
 
   it('initializes the package.json with defaults', () => {

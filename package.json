@@ -1,32 +1,33 @@
 {
-  "name": "@ubiquits/toolchain",
-  "version": "2.0.1-1",
-  "description": "Toolchain for ubiquits projects, modules & core",
+  "name": "@zerothstack/toolchain",
+  "version": "0.0.0",
+  "description": "Toolchain for Zeroth projects, modules & core",
   "main": "index.js",
   "preferGlobal": true,
   "scripts": {
     "test": "./node_modules/.bin/mocha --no-timeouts test/test.js",
-    "postversion": "u changelog && git commit -am 'chore(changelog): updated changelog'",
+    "postversion": "z changelog && git commit -am 'chore(changelog): updated changelog'",
     "deploy-patch": "npm version patch && npm publish && git push origin master --tags"
   },
   "bin": {
-    "u": "bin/execute.js",
-    "ubiquits": "bin/execute.js"
+    "z": "bin/execute.js",
+    "zth": "bin/execute.js",
+    "zeroth": "bin/execute.js"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ubiquits/toolchain.git"
+    "url": "git+https://github.com/zerothstack/toolchain.git"
   },
   "keywords": [
-    "ubiquits",
+    "zeroth",
     "toolchain"
   ],
   "author": "Zak Henry",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/ubiquits/toolchain/issues"
+    "url": "https://github.com/zerothstack/toolchain/issues"
   },
-  "homepage": "https://github.com/ubiquits/toolchain#readme",
+  "homepage": "https://github.com/zerothstack/toolchain#readme",
   "dependencies": {
     "@xiphiaz/metalsmith-headings": "^0.1.1",
     "@xiphiaz/metalsmith-layouts": "^1.7.0",
