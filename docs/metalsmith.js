@@ -166,8 +166,8 @@ function config(pathConfig, meta, watching) {
 
     if (matches) {
       meta.social.github.star = {
-        repo: matches[1],
-        user: matches[2],
+        user: matches[1],
+        repo: matches[2],
       }
     }
 
