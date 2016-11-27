@@ -83,24 +83,15 @@ try {
   project = new ZerothProject(process.cwd());
 }
 
-// Load all the commands registered in the project
-project.loadRegisteredCommands(vantage);
-
-vantage.command('wot m8')
-  .hidden()
-  .action(function (a, c) {
-    this.log(`'R U 'AVIN A GIGGLE, M8?'`);
-    c()
-  });
-
-// check if only one arg eg `u` or `zeroth`
+// check if only one arg eg `z` or `zeroth`
 if (process.argv.length <= 2) { //one arg, drop into shell
 
   vantage.show();
-  // only output the banner when there is room
-  if (process.stdout.columns > 68) {
-    vantage.log(chalk.dim.white(banner('$ Command Line Interface')));
-  }
+  vantage.log(chalk.dim.white(banner('$ Command Line Interface')));
+
+  vantage.log(chalk.blue(`Loading project commands, standby...`));
+  // command load deferred until after show to make cli appear quicker
+  project.loadRegisteredCommands(vantage);
 
   // check if empty directory
   if (!fs.readdirSync(process.cwd()).length) {
@@ -111,6 +102,7 @@ if (process.argv.length <= 2) { //one arg, drop into shell
   }
 
 } else { // more than one arg, just execute the command from the parent shell
+  project.loadRegisteredCommands(vantage);
   vantage.exec(process.argv.splice(2).join(' '))
     .catch((e) => {
       if (e === 'invalid_command') {
@@ -119,7 +111,3 @@ if (process.argv.length <= 2) { //one arg, drop into shell
       return process.exit(1);
     });
 }
-
-
-
-
