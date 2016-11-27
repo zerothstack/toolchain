@@ -19,15 +19,10 @@ module.exports = function (message) {
     00000    000         00000
         0000  000     0000
             00000    00
-                 0`.replace(/0/g, '\u2b21');
+                 0`;
 
   const maxWidth = logo.split('\n')
-    .reduce((max, row) => {
-      if (max < row.length) {
-        max = row.length;
-      }
-      return max;
-    }, 0);
+    .reduce((max, row) => max < row.length ? row.length : max, 0);
 
   if (maxWidth > columns) {
     return message;
@@ -35,11 +30,13 @@ module.exports = function (message) {
 
   const padding = Math.floor((columns - maxWidth) / 2);
 
-  const centredLogo = logo.split('\n')
-    .map((row) => {
-      row = ' '.repeat(padding) + row;
-      return row;
-    })
+  const emptyHexagon = '\u2b21';
+  const filledHexagon = '\u2b22';
+
+  const centredLogo = logo
+    .replace(/0/g, m => Math.random() > 0.9 ? filledHexagon : emptyHexagon)
+    .split('\n')
+    .map(row => ' '.repeat(padding) + row)
     .join('\n');
 
   return centredLogo + `
