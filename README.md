@@ -7,4 +7,4 @@ npm install -g @zerothstack/toolchain && u
 ```
 
 ## Developer Guide
-See http://zeroth.com/guide/cli for full documentation on the usage of this tool.
+See http://zeroth.io/guide/cli for full documentation on the usage of this tool.

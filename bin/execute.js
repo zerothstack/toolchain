@@ -86,21 +86,11 @@ try {
 // Load all the commands registered in the project
 project.loadRegisteredCommands(vantage);
 
-vantage.command('wot m8')
-  .hidden()
-  .action(function (a, c) {
-    this.log(`'R U 'AVIN A GIGGLE, M8?'`);
-    c()
-  });
-
-// check if only one arg eg `u` or `zeroth`
+// check if only one arg eg `z` or `zeroth`
 if (process.argv.length <= 2) { //one arg, drop into shell
 
   vantage.show();
-  // only output the banner when there is room
-  if (process.stdout.columns > 68) {
-    vantage.log(chalk.dim.white(banner('$ Command Line Interface')));
-  }
+  vantage.log(chalk.dim.white(banner('$ Command Line Interface')));
 
   // check if empty directory
   if (!fs.readdirSync(process.cwd()).length) {
