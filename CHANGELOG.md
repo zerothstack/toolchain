@@ -1,3 +1,23 @@
+<a name="1.0.0"></a>
+# [1.0.0](https://github.com/zerothstack/toolchain/compare/v1.0.0-0...v1.0.0) (2016-11-27)
+
+
+### Bug Fixes
+
+* **Travis:** use explicit bin finding script to maybe fix travis ([974a46e](https://github.com/zerothstack/toolchain/commit/974a46e))
+
+
+### Features
+
+* **cli:** Added random filled hexagons, tidied method chain ([af95bfd](https://github.com/zerothstack/toolchain/commit/af95bfd))
+
+
+### Performance Improvements
+
+* **bootstrap:** Deferred loading until after show, added extra feedback on loading progress ([0bbd534](https://github.com/zerothstack/toolchain/commit/0bbd534))
+
+
+
 <a name="1.0.0-0"></a>
 # [1.0.0-0](https://github.com/zerothstack/toolchain/compare/2933c77...v1.0.0-0) (2016-11-23)
 
