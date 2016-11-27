@@ -124,13 +124,21 @@ class ZerothProject {
   /**
    * Read all the tasks from ./cli/tasks, pushing them into the command registry
    */
-  readTasks() {
-    var taskDirectory = path.resolve(__dirname + '/cli/tasks');
+  readTasks(vantage) {
+    const taskDirectory = path.resolve(__dirname + '/cli/tasks');
+    const taskFiles = fs.readdirSync(taskDirectory);
 
-    fs.readdirSync(taskDirectory).forEach((file) => {
+    const stream = process.stdout;
+
+    taskFiles.forEach((file, index) => {
+      if (stream.isTTY){
+        stream.clearLine();
+        stream.cursorTo(0);
+        stream.write(`Loading (${index+1}/${taskFiles.length}) ` +chalk.green("\u2713".repeat(index)) + ' ' + file);
+      }
+
       this.commandRegistry.push(require(path.resolve(taskDirectory, file)).task);
     });
-
   }
 
   /**
@@ -155,7 +163,7 @@ class ZerothProject {
    */
   loadRegisteredCommands(vantage) {
 
-    this.readTasks();
+    this.readTasks(vantage);
 
     this.commandRegistry.forEach((commandRegisterFn) => {
       commandRegisterFn(vantage, this);
