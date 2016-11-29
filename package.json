@@ -1,6 +1,6 @@
 {
   "name": "@zerothstack/toolchain",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Toolchain for Zeroth projects, modules & core",
   "main": "index.js",
   "preferGlobal": true,
