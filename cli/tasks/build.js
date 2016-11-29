@@ -60,7 +60,7 @@ function build(project, cli, context) {
     });
 
     compiler.on('error', (code) => {
-      cli.log(chalk.red(`Failed to run '${args}'.\n${code}`));
+      cli.log(chalk.red(`Failed to run '${cmd}'.\n${code}`));
       reject();
     });
 
